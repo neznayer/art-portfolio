@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { DeleteObjectCommandOutput } from "@aws-sdk/client-s3";
+import { type DeleteObjectCommandOutput } from "@aws-sdk/client-s3";
 import { useState, type ChangeEvent } from "react";
 import Gallery from "../../components/Gallery/Gallery";
 import GalleryItem from "../../components/Gallery/GalleryItem";
