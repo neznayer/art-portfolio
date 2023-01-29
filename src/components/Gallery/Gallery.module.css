@@ -1,0 +1,7 @@
+.gallery {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  max-width: 36rem;
+  gap: 1rem;
+}

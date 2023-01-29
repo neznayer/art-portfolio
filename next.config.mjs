@@ -14,5 +14,12 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  images: {
+    remotePatterns: [
+      {
+        hostname: "s3-art-portfolio.s3.ap-northeast-1.amazonaws.com",
+      },
+    ],
+  },
 };
 export default config;

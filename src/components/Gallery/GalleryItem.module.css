@@ -1,0 +1,19 @@
+.item {
+  position: relative;
+}
+
+.item > img {
+  width: 100%;
+  height: auto;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  cursor: pointer;
+}
+.delete-btn:hover {
+  color: red;
+  transition: color ease-out 0.3s;
+}
