@@ -14,9 +14,14 @@ export interface IArt {
 interface GalleryItemProps {
   art: IArt;
   onDelete: (link: string) => void;
+  admin: boolean;
 }
 
-export default function GalletyItem({ art, onDelete }: GalleryItemProps) {
+export default function GalletyItem({
+  art,
+  admin,
+  onDelete,
+}: GalleryItemProps) {
   return (
     <div className={styles.item}>
       <Image
@@ -25,9 +30,11 @@ export default function GalletyItem({ art, onDelete }: GalleryItemProps) {
         width={art.width}
         height={art.height}
       />
-      <div className={styles["delete-btn"]}>
-        <FaTimes onClick={() => onDelete(art.id)} />
-      </div>
+      {admin && (
+        <div className={styles["delete-btn"]}>
+          <FaTimes onClick={() => onDelete(art.id)} />
+        </div>
+      )}
     </div>
   );
 }

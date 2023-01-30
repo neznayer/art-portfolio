@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { type DeleteObjectCommandOutput } from "@aws-sdk/client-s3";
 import { useState, type ChangeEvent } from "react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Gallery from "../../components/Gallery/Gallery";
 import GalleryItem from "../../components/Gallery/GalleryItem";
 import { api } from "../../utils/api";
@@ -11,6 +12,8 @@ interface IgetPutUrlResponse {
 }
 
 export default function AdminPage() {
+  const { data: sessionData } = useSession();
+
   const mutation = api.art.addNewArt.useMutation().mutateAsync;
   const deleteMutation = api.art.remove.useMutation().mutateAsync;
   const { data: allArts } = api.art.allArts.useQuery();
@@ -87,24 +90,55 @@ export default function AdminPage() {
     await utils.art.allArts.invalidate();
   }
 
-  return (
-    <>
-      <p>Plaese select a file to upload</p>
-      <form onSubmit={uploadToS3}>
-        <input
-          onChange={handleChange}
-          type="file"
-          accept="image/jpg image/jpeg image/png"
-          name="file"
-        />
-        <input type="text" name="title" />
-        <button type="submit">Upload</button>
-      </form>
+  let toRender;
+
+  if (sessionData) {
+    const gallery = (
       <Gallery>
         {allArts?.map((art, i) => {
-          return <GalleryItem onDelete={onDelete} key={i} art={art} />;
+          return (
+            <GalleryItem
+              admin={sessionData.user.role === "admin"}
+              onDelete={onDelete}
+              key={i}
+              art={art}
+            />
+          );
         })}
       </Gallery>
-    </>
-  );
+    );
+    const signOutBtn = <button onClick={() => signOut()}>Sign Out</button>;
+    if (sessionData.user.role === "admin") {
+      toRender = (
+        <>
+          {signOutBtn}
+          <p>Plaese select a file to upload</p>
+          <form onSubmit={uploadToS3}>
+            <input
+              onChange={handleChange}
+              type="file"
+              accept="image/jpg image/jpeg image/png"
+              name="file"
+            />
+            <input type="text" name="title" />
+            <button type="submit">Upload</button>
+          </form>
+          {gallery}
+        </>
+      );
+    } else {
+      toRender = (
+        <>
+          {signOutBtn}
+          {gallery}
+        </>
+      );
+    }
+  } else {
+    toRender = (
+      <button onClick={() => signIn("google")}>SignIn with Google</button>
+    );
+  }
+
+  return <>{toRender}</>;
 }
