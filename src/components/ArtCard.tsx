@@ -7,9 +7,16 @@ interface IArtProps {
   description: string;
   width: number;
   height: number;
+  highlight?: boolean;
 }
 
-export default function ArtCard({ title, link, width, height }: IArtProps) {
+export default function ArtCard({
+  title,
+  link,
+  width,
+  height,
+  highlight,
+}: IArtProps) {
   return (
     <div className={styles.container}>
       <Image

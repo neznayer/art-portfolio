@@ -8,6 +8,7 @@ const inputSchema = z.object({
   link: z.string(),
   width: z.number(),
   height: z.number(),
+  highlight: z.boolean().optional(),
 });
 
 export const artRouter = createTRPCRouter({
