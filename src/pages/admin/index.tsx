@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { useState, type ChangeEvent } from "react";
+import { type KeyboardEvent, useState, type ChangeEvent } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Gallery from "../../components/Gallery/Gallery";
 import GalleryItem from "../../components/Gallery/GalleryItem";
@@ -12,12 +12,14 @@ interface IgetPutUrlResponse {
 
 export default function AdminPage() {
   const { data: sessionData } = useSession();
-
+  const [inputTag, setInputTag] = useState<string>("");
   const mutation = api.art.addNewArt.useMutation().mutateAsync;
   const deleteMutation = api.art.remove.useMutation().mutateAsync;
   const highlightMutation = api.art.addHighLight.useMutation().mutateAsync;
   const { data: allArts } = api.art.allArts.useQuery();
   const [imgSize, setImgSige] = useState({ width: 0, height: 0 });
+  const [tags, setTags] = useState<string[]>([]);
+
   const utils = api.useContext();
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
@@ -42,7 +44,6 @@ export default function AdminPage() {
     const file = formData.get("file") as File;
     const title = formData.get("title")?.toString() as string;
     const description = "some descr";
-    const tags = ["tag1", "tag2"];
     const highlight = !!formData.get("highlight");
 
     if (!file) {
@@ -98,6 +99,22 @@ export default function AdminPage() {
     await utils.art.allArts.invalidate();
   }
 
+  function handleTagChange(e: ChangeEvent<HTMLInputElement>) {
+    setInputTag(e.target.value);
+  }
+
+  function handleAddTag(e: KeyboardEvent) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (inputTag) {
+        setTags((prev) => {
+          return [...new Set([...prev, inputTag])];
+        });
+        setInputTag("");
+      }
+    }
+  }
+
   let toRender;
 
   if (sessionData) {
@@ -140,11 +157,29 @@ export default function AdminPage() {
               Highlight in main gallery
             </label>
 
+            <div>
+              <h3>Set tags</h3>
+
+              <input
+                type="text"
+                name="tag"
+                id="tag"
+                onChange={handleTagChange}
+                onKeyDown={handleAddTag}
+                value={inputTag}
+              />
+
+              <ul>
+                {tags.map((tag) => (
+                  <li key={tag}>{tag}</li>
+                ))}
+              </ul>
+            </div>
+
             <button
               type="submit"
               className=" rounded border-2 border-orange-300"
             >
-              {" "}
               Upload
             </button>
           </form>
