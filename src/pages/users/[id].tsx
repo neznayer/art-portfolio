@@ -14,3 +14,5 @@ const User = () => {
 
   return <p>Welcome {session.user.name}!</p>;
 };
+
+export default User;
