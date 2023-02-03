@@ -18,12 +18,13 @@ const Home: NextPage = () => {
         />
       </Head>
       <main className={styles.main}>
-        <ul>
+        <section className={styles["tags-panel"]}></section>
+        <section className={styles["images-container"]}>
           {isSuccess &&
             artsArray?.map((art) => {
               return <ArtCard key={art.id} {...art} />;
             })}
-        </ul>
+        </section>
       </main>
     </>
   );
