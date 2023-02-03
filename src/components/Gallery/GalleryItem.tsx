@@ -1,16 +1,7 @@
 import Image from "next/image";
 import styles from "./GalleryItem.module.css";
 import { FaHeart, FaTimes } from "react-icons/fa";
-export interface IArt {
-  id: string;
-  link: string;
-  tags: string[];
-  title: string;
-  description: string;
-  width: number;
-  height: number;
-  highlight?: boolean;
-}
+import { type IArt } from "../../types/art";
 
 interface GalleryItemProps {
   art: IArt;

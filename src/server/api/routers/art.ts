@@ -17,9 +17,17 @@ export const artRouter = createTRPCRouter({
       .findMany()
       .then((res) => res.sort((a, b) => +a.createdAt - +b.createdAt));
   }),
-  highlightedArts: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.art.findMany({ where: { highlight: true } });
-  }),
+  highlightedArts: publicProcedure
+    .input(z.object({ tag: z.string().optional() }).optional())
+    .query(({ ctx, input }) => {
+      if (input?.tag) {
+        return ctx.prisma.art.findMany({
+          where: { highlight: true, tags: { has: input.tag } },
+        });
+      }
+
+      return ctx.prisma.art.findMany({ where: { highlight: true } });
+    }),
   addNewArt: protectedProcedure
     .input(inputSchema)
     .mutation(({ ctx, input }) => {
