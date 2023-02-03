@@ -4,12 +4,18 @@ import Head from "next/head";
 import { Inter } from "@next/font/google";
 import { api } from "../utils/api";
 import ArtCard from "../components/ArtCard";
+import { useEffect, useState } from "react";
 
 const inter = Inter({ subsets: ["latin"], weight: "200" });
 
 const Home: NextPage = () => {
   const { data: artsArray, isSuccess } = api.art.highlightedArts.useQuery();
+  const [tags, setTags] = useState<string[]>([]);
 
+  useEffect(() => {
+    const uniqueTags = [...new Set(artsArray?.flatMap((art) => art.tags))];
+    setTags(uniqueTags);
+  }, [artsArray]);
   return (
     <>
       <Head>
@@ -27,7 +33,19 @@ const Home: NextPage = () => {
         </header>
 
         <div className="flex flex-1 gap-[12px]">
-          <section className="w-[200px]"></section>
+          <section className="w-[200px]">
+            <h3>Tags</h3>
+            <div className="flex flex-row flex-wrap gap-2">
+              {tags.map((tag) => (
+                <span
+                  className=" rounded border-2 border-zinc-200 bg-slate-100 p-1 text-sm text-slate-600"
+                  key={tag}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </section>
           <section className=" flex flex-1 flex-wrap content-start items-center gap-3">
             {isSuccess &&
               artsArray?.map((art) => {
