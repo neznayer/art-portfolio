@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { type DeleteObjectCommandOutput } from "@aws-sdk/client-s3";
 import { useState, type ChangeEvent } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Gallery from "../../components/Gallery/Gallery";
@@ -16,6 +15,7 @@ export default function AdminPage() {
 
   const mutation = api.art.addNewArt.useMutation().mutateAsync;
   const deleteMutation = api.art.remove.useMutation().mutateAsync;
+  const highlightMutation = api.art.addHighLight.useMutation().mutateAsync;
   const { data: allArts } = api.art.allArts.useQuery();
   const [imgSize, setImgSige] = useState({ width: 0, height: 0 });
   const utils = api.useContext();
@@ -41,9 +41,9 @@ export default function AdminPage() {
 
     const file = formData.get("file") as File;
     const title = formData.get("title")?.toString() as string;
-
     const description = "some descr";
     const tags = ["tag1", "tag2"];
+    const highlight = !!formData.get("highlight");
 
     if (!file) {
       return null;
@@ -68,6 +68,7 @@ export default function AdminPage() {
         tags,
         width: imgSize.width,
         height: imgSize.height,
+        highlight,
       });
 
       await utils.art.allArts.invalidate();
@@ -79,14 +80,21 @@ export default function AdminPage() {
   async function onDelete(id: string) {
     const toDelete = await utils.art.getById.fetch({ id });
 
-    console.log("id", id);
     const key = toDelete?.link.split("amazonaws.com/")[1] as string;
-    const response = await fetch(`/api/delete-art?key=${key}`);
-    const responseJson = (await response.json()) as DeleteObjectCommandOutput;
+    await fetch(`/api/delete-art?key=${key}`);
 
-    console.log(responseJson);
     await deleteMutation({ id });
 
+    await utils.art.allArts.invalidate();
+  }
+
+  async function onAddHighLight(id: string, highlight: boolean) {
+    console.log(id, highlight);
+    try {
+      await highlightMutation({ id, highlight });
+    } catch (error) {
+      console.log(error);
+    }
     await utils.art.allArts.invalidate();
   }
 
@@ -95,12 +103,13 @@ export default function AdminPage() {
   if (sessionData) {
     const gallery = (
       <Gallery>
-        {allArts?.map((art, i) => {
+        {allArts?.map((art) => {
           return (
             <GalleryItem
               admin={sessionData.user.role === "admin"}
               onDelete={onDelete}
-              key={i}
+              onAddHighlight={onAddHighLight}
+              key={art.id}
               art={art}
             />
           );
@@ -112,16 +121,32 @@ export default function AdminPage() {
       toRender = (
         <>
           {signOutBtn}
-          <p>Plaese select a file to upload</p>
+          <p>Plaese select art to upload</p>
           <form onSubmit={uploadToS3}>
-            <input
-              onChange={handleChange}
-              type="file"
-              accept="image/jpg image/jpeg image/png"
-              name="file"
-            />
-            <input type="text" name="title" />
-            <button type="submit">Upload</button>
+            <label>
+              Select file to upload
+              <input
+                onChange={handleChange}
+                type="file"
+                accept="image/jpg image/jpeg image/png"
+                name="file"
+              />
+            </label>
+            <label>
+              Title <input type="text" name="title" />
+            </label>
+            <label>
+              <input type="checkbox" name="highlight" id="highlight" />
+              Highlight in main gallery
+            </label>
+
+            <button
+              type="submit"
+              className=" rounded border-2 border-orange-300"
+            >
+              {" "}
+              Upload
+            </button>
           </form>
           {gallery}
         </>

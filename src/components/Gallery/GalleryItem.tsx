@@ -1,6 +1,6 @@
 import Image from "next/image";
 import styles from "./GalleryItem.module.css";
-import { FaTimes } from "react-icons/fa";
+import { FaHeart, FaTimes } from "react-icons/fa";
 export interface IArt {
   id: string;
   link: string;
@@ -9,18 +9,20 @@ export interface IArt {
   description: string;
   width: number;
   height: number;
+  highlight?: boolean;
 }
 
 interface GalleryItemProps {
   art: IArt;
   onDelete: (link: string) => void;
+  onAddHighlight: (id: string, highlight: boolean) => void;
   admin: boolean;
 }
 
 export default function GalletyItem({
   art,
-  admin,
   onDelete,
+  onAddHighlight,
 }: GalleryItemProps) {
   return (
     <div className={styles.item}>
@@ -30,11 +32,19 @@ export default function GalletyItem({
         width={art.width}
         height={art.height}
       />
-      {admin && (
-        <div className={styles["delete-btn"]}>
-          <FaTimes onClick={() => onDelete(art.id)} />
-        </div>
-      )}
+
+      <div className={styles["delete-btn"]}>
+        <FaTimes onClick={() => onDelete(art.id)} />
+      </div>
+
+      <div
+        onClick={() => onAddHighlight(art.id, !art.highlight)}
+        className={`absolute top-3 left-3 cursor-pointer hover:text-red-600 ${
+          art.highlight && " text-red-400 "
+        }`}
+      >
+        <FaHeart />
+      </div>
     </div>
   );
 }

@@ -1,12 +1,14 @@
-import styles from "./index.module.css";
+import styles from "./index.module.sass";
 import { type NextPage } from "next";
 import Head from "next/head";
-
+import { Inter } from "@next/font/google";
 import { api } from "../utils/api";
 import ArtCard from "../components/ArtCard";
 
+const inter = Inter({ subsets: ["latin"], weight: "200" });
+
 const Home: NextPage = () => {
-  const { data: artsArray, isSuccess } = api.art.allArts.useQuery();
+  const { data: artsArray, isSuccess } = api.art.highlightedArts.useQuery();
 
   return (
     <>
@@ -17,14 +19,22 @@ const Home: NextPage = () => {
           content="Anton Nezanyer's artworks portfolio"
         />
       </Head>
-      <main className={styles.main}>
-        <section className={styles["tags-panel"]}></section>
-        <section className={styles["images-container"]}>
-          {isSuccess &&
-            artsArray?.map((art) => {
-              return <ArtCard key={art.id} {...art} />;
-            })}
-        </section>
+      <main className="flex flex-col justify-start gap-4">
+        <header className="flex h-[100px] items-center justify-center text-xl">
+          <h1 className={`${inter.className} inline-block`}>
+            Neznayer Art portfolio
+          </h1>
+        </header>
+
+        <div className="flex flex-1 gap-[12px]">
+          <section className="w-[200px]"></section>
+          <section className=" flex flex-1 flex-wrap content-start items-center gap-3">
+            {isSuccess &&
+              artsArray?.map((art) => {
+                return <ArtCard key={art.id} {...art} />;
+              })}
+          </section>
+        </div>
       </main>
     </>
   );

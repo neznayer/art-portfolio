@@ -16,7 +16,7 @@ export default async function handler(
   const ext = (req.query.fileType as string).split("/")[1] as string;
   const Key = `${randomUUID()}.${ext}`;
   const bucket = process.env.BUCKET_NAME as string;
-  const region = process.env.AWS_REGION as string;
+  const region = process.env.REGION as string;
 
   const putObjectParams: PutObjectCommandInput = {
     Key,
