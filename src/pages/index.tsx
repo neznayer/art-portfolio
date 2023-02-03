@@ -1,4 +1,4 @@
-import styles from "./index.module.css";
+import styles from "./index.module.sass";
 import { type NextPage } from "next";
 import Head from "next/head";
 
@@ -17,6 +17,9 @@ const Home: NextPage = () => {
           content="Anton Nezanyer's artworks portfolio"
         />
       </Head>
+      <header>
+        <h1>Neznayer Art portfolio</h1>
+      </header>
       <main className={styles.main}>
         <section className={styles["tags-panel"]}></section>
         <section className={styles["images-container"]}>
