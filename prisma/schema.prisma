@@ -66,4 +66,5 @@ model Art {
     tags        String[]
     width       Int      @default(0)
     height      Int      @default(0)
+    highlight   Boolean  @default(false)
 }

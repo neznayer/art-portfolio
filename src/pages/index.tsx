@@ -8,7 +8,7 @@ import ArtCard from "../components/ArtCard";
 const inter = Inter({ subsets: ["latin"], weight: "200" });
 
 const Home: NextPage = () => {
-  const { data: artsArray, isSuccess } = api.art.allArts.useQuery();
+  const { data: artsArray, isSuccess } = api.art.highlightedArts.useQuery();
 
   return (
     <>
@@ -26,9 +26,9 @@ const Home: NextPage = () => {
           </h1>
         </header>
 
-        <div className="flex flex-1">
-          <section className={`${styles["tags-panel"]}`}></section>
-          <section className={styles["images-container"]}>
+        <div className="flex flex-1 gap-[12px]">
+          <section className="w-[200px]"></section>
+          <section className=" flex flex-1 flex-wrap content-start items-center gap-3">
             {isSuccess &&
               artsArray?.map((art) => {
                 return <ArtCard key={art.id} {...art} />;

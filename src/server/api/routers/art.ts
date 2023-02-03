@@ -14,6 +14,9 @@ export const artRouter = createTRPCRouter({
   allArts: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.art.findMany();
   }),
+  highlightedArts: publicProcedure.query(({ ctx }) => {
+    return ctx.prisma.art.findMany({ where: { highlight: true } });
+  }),
   addNewArt: publicProcedure.input(inputSchema).mutation(({ ctx, input }) => {
     return ctx.prisma.art.create({
       data: {
