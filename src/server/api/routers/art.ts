@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 
 const inputSchema = z.object({
   title: z.string(),
@@ -13,24 +13,36 @@ const inputSchema = z.object({
 
 export const artRouter = createTRPCRouter({
   allArts: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.art.findMany();
+    return ctx.prisma.art
+      .findMany()
+      .then((res) => res.sort((a, b) => +a.createdAt - +b.createdAt));
   }),
   highlightedArts: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.art.findMany({ where: { highlight: true } });
   }),
-  addNewArt: publicProcedure.input(inputSchema).mutation(({ ctx, input }) => {
-    return ctx.prisma.art.create({
-      data: {
-        ...input,
-      },
-    });
-  }),
+  addNewArt: protectedProcedure
+    .input(inputSchema)
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.art.create({
+        data: {
+          ...input,
+        },
+      });
+    }),
+  addHighLight: protectedProcedure
+    .input(z.object({ id: z.string(), highlight: z.boolean() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.art.update({
+        where: { id: input.id },
+        data: { highlight: input.highlight },
+      });
+    }),
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
       return ctx.prisma.art.findFirst({ where: { id: input.id } });
     }),
-  remove: publicProcedure
+  remove: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(({ ctx, input }) => {
       return ctx.prisma.art.delete({ where: { id: input.id } });

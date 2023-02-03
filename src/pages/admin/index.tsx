@@ -15,6 +15,7 @@ export default function AdminPage() {
 
   const mutation = api.art.addNewArt.useMutation().mutateAsync;
   const deleteMutation = api.art.remove.useMutation().mutateAsync;
+  const highlightMutation = api.art.addHighLight.useMutation().mutateAsync;
   const { data: allArts } = api.art.allArts.useQuery();
   const [imgSize, setImgSige] = useState({ width: 0, height: 0 });
   const utils = api.useContext();
@@ -87,17 +88,28 @@ export default function AdminPage() {
     await utils.art.allArts.invalidate();
   }
 
+  async function onAddHighLight(id: string, highlight: boolean) {
+    console.log(id, highlight);
+    try {
+      await highlightMutation({ id, highlight });
+    } catch (error) {
+      console.log(error);
+    }
+    await utils.art.allArts.invalidate();
+  }
+
   let toRender;
 
   if (sessionData) {
     const gallery = (
       <Gallery>
-        {allArts?.map((art, i) => {
+        {allArts?.map((art) => {
           return (
             <GalleryItem
               admin={sessionData.user.role === "admin"}
               onDelete={onDelete}
-              key={i}
+              onAddHighlight={onAddHighLight}
+              key={art.id}
               art={art}
             />
           );
