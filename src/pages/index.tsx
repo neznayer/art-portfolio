@@ -4,15 +4,15 @@ import { Inter } from "@next/font/google";
 import { api } from "../utils/api";
 import ArtCard from "../components/ArtCard";
 import { useEffect, useState } from "react";
-import { type IArt } from "../types/art";
 
 const inter = Inter({ subsets: ["latin"], weight: "200" });
 
 const Home: NextPage = () => {
-  const utils = api.useContext();
-  const { data: artsArray, isSuccess } = api.art.highlightedArts.useQuery();
   const [tags, setTags] = useState<string[]>([]);
   const [selectedTag, setSelectedTag] = useState<string>("");
+  const { data: artsArray, isSuccess } = api.art.highlightedArts.useQuery({
+    tag: selectedTag,
+  });
 
   function handleTagFilter(tag: string) {
     setSelectedTag(tag);
@@ -30,10 +30,6 @@ const Home: NextPage = () => {
       setTags(uniqueTags);
     }
   }, [artsArray, selectedTag]);
-
-  useEffect(() => {
-    utils.art.highlightedArts.fetch({ tag: selectedTag });
-  }, [selectedTag]);
 
   return (
     <>
