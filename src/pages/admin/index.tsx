@@ -49,11 +49,12 @@ export default function AdminPage() {
       reader.readAsDataURL(upFile);
     });
   }, []);
-  const { getRootProps, getInputProps } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    maxSize: 5 * 1024 ** 2,
+    accept: { "image/jpg": [], "image/jpeg": [], "image/png": [] },
+  });
 
-  function handleChange(uploadFile: File | null) {
-    setFile(uploadFile);
-  }
   async function uploadToS3(e: ChangeEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -214,21 +215,24 @@ export default function AdminPage() {
               </button>
             </div>
             <div
-              {...getRootProps()}
-              className="flex h-10 flex-1 items-center justify-center bg-slate-200 object-cover"
+              {...getRootProps({ ondrop })}
+              className="flex h-[100px] flex-1 flex-col items-center justify-center rounded-md border-2 border-slate-300 bg-slate-200 p-2 text-slate-400"
             >
-              <input {...getInputProps()} />
+              <input {...getInputProps({})} />
               {previewImg && imgSize && (
                 <NextImage
                   src={previewImg}
                   width={imgSize.width}
                   height={imgSize.height}
                   alt="preview"
-                  className="h-auto w-auto"
+                  className=" h-auto max-h-full w-auto max-w-full"
                 ></NextImage>
               )}
               {!previewImg && (
-                <p>Drag n drop some files here, or click to select files</p>
+                <>
+                  <FaUpload />
+                  <p>Drag n drop some files here, or click to select files</p>
+                </>
               )}
             </div>
           </form>
