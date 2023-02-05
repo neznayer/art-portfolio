@@ -9,6 +9,7 @@ const inputSchema = z.object({
   width: z.number(),
   height: z.number(),
   highlight: z.boolean().optional(),
+  key: z.string(),
 });
 
 export const artRouter = createTRPCRouter({
@@ -17,9 +18,17 @@ export const artRouter = createTRPCRouter({
       .findMany()
       .then((res) => res.sort((a, b) => +a.createdAt - +b.createdAt));
   }),
-  highlightedArts: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.art.findMany({ where: { highlight: true } });
-  }),
+  highlightedArts: publicProcedure
+    .input(z.object({ tag: z.string().optional() }).optional())
+    .query(({ ctx, input }) => {
+      if (input?.tag) {
+        return ctx.prisma.art.findMany({
+          where: { highlight: true, tags: { has: input.tag } },
+        });
+      }
+
+      return ctx.prisma.art.findMany({ where: { highlight: true } });
+    }),
   addNewArt: protectedProcedure
     .input(inputSchema)
     .mutation(({ ctx, input }) => {
@@ -42,6 +51,11 @@ export const artRouter = createTRPCRouter({
     .query(({ ctx, input }) => {
       return ctx.prisma.art.findFirst({ where: { id: input.id } });
     }),
+  allTags: publicProcedure.query(({ ctx }) => {
+    return ctx.prisma.art
+      .findMany()
+      .then((found) => [...new Set(found.flatMap((f) => f.tags))]);
+  }),
   remove: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(({ ctx, input }) => {

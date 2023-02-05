@@ -1,48 +1,71 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
-import { useState, type ChangeEvent } from "react";
+import {
+  type KeyboardEvent,
+  useState,
+  type ChangeEvent,
+  useCallback,
+  useEffect,
+} from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Gallery from "../../components/Gallery/Gallery";
 import GalleryItem from "../../components/Gallery/GalleryItem";
 import { api } from "../../utils/api";
+import { FaGoogle, FaTimes, FaUpload } from "react-icons/fa";
+import Button from "../../components/Button";
+import { useDropzone } from "react-dropzone";
+import TextInput from "../../components/TextInput";
+
+import NextImage from "next/image";
+import { type IArt } from "../../types/art";
 
 interface IgetPutUrlResponse {
   putUrl: string;
   getUrl: string;
+  key: string;
 }
 
 export default function AdminPage() {
   const { data: sessionData } = useSession();
-
+  const [inputTag, setInputTag] = useState<string>("");
   const mutation = api.art.addNewArt.useMutation().mutateAsync;
   const deleteMutation = api.art.remove.useMutation().mutateAsync;
   const highlightMutation = api.art.addHighLight.useMutation().mutateAsync;
   const { data: allArts } = api.art.allArts.useQuery();
-  const [imgSize, setImgSige] = useState({ width: 0, height: 0 });
+  const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
+  const [tags, setTags] = useState<string[]>([]);
+  const [file, setFile] = useState<File>();
+  const [previewImg, setPreviewImg] = useState<string | null | undefined>();
+  const [shownArts, setShownArts] = useState<IArt[]>([]);
+
   const utils = api.useContext();
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    const file = files?.item(0);
-    if (file) {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    // Do something with the files
+    acceptedFiles.forEach((upFile) => {
       const reader = new FileReader();
-      reader.onload = function () {
+      reader.onload = function (e) {
         const img = new Image();
         img.src = this.result as string;
         img.onload = function () {
-          setImgSige({ width: img.width, height: img.height });
+          setImgSize({ width: img.width, height: img.height });
         };
+        setPreviewImg(e.target?.result as string);
       };
-      reader.readAsDataURL(file);
-    }
-  }
+      reader.readAsDataURL(upFile);
+      setFile(upFile);
+    });
+  }, []);
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    maxSize: 5 * 1024 ** 2,
+    accept: { "image/jpg": [], "image/jpeg": [], "image/png": [] },
+  });
+
   async function uploadToS3(e: ChangeEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.target);
 
-    const file = formData.get("file") as File;
     const title = formData.get("title")?.toString() as string;
     const description = "some descr";
-    const tags = ["tag1", "tag2"];
     const highlight = !!formData.get("highlight");
 
     if (!file) {
@@ -56,7 +79,7 @@ export default function AdminPage() {
         `/api/upload-art?fileType=${fileType}`
       );
 
-      const { putUrl, getUrl } =
+      const { putUrl, getUrl, key } =
         (await getPutUrlResponse.json()) as IgetPutUrlResponse;
 
       await fetch(putUrl, { method: "PUT", body: file });
@@ -69,6 +92,7 @@ export default function AdminPage() {
         width: imgSize.width,
         height: imgSize.height,
         highlight,
+        key,
       });
 
       await utils.art.allArts.invalidate();
@@ -98,55 +122,142 @@ export default function AdminPage() {
     await utils.art.allArts.invalidate();
   }
 
-  let toRender;
+  function handleTagChange(e: ChangeEvent<HTMLInputElement>) {
+    setInputTag(e.target.value);
+  }
 
-  if (sessionData) {
+  function handleAddTag(e: KeyboardEvent) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (inputTag) {
+        setTags((prev) => {
+          return [...new Set([...prev, inputTag])];
+        });
+        setInputTag("");
+      }
+    }
+  }
+
+  function handleDeleteTag(tag: string) {
+    setTags((prev) => {
+      return prev.filter((prevTag) => tag !== prevTag);
+    });
+  }
+
+  useEffect(() => {
+    if (allArts) {
+      Promise.all(
+        allArts.map((art) =>
+          fetch(`/api/get-art?key=${art.key}`).then((res) => res.json())
+        )
+      ).then((artsGetUrlArr) => {
+        setShownArts(
+          artsGetUrlArr.map((art, i) => {
+            return {
+              ...allArts[i],
+              link: art.url,
+            };
+          })
+        );
+      });
+    }
+  }, [allArts]);
+
+  let toRender;
+  const signinBtn = (
+    <Button onClick={() => signIn("google")}>
+      <FaGoogle color="red" className="mr-1 inline-block text-lg" /> SignIn with
+      Google
+    </Button>
+  );
+  if (sessionData?.user.role === "admin") {
     const gallery = (
       <Gallery>
-        {allArts?.map((art) => {
+        {shownArts?.map((art) => {
           return (
             <GalleryItem
-              admin={sessionData.user.role === "admin"}
               onDelete={onDelete}
-              onAddHighlight={onAddHighLight}
+              onHighlight={onAddHighLight}
               key={art.id}
-              art={art}
+              mode="control"
+              {...art}
             />
           );
         })}
       </Gallery>
     );
-    const signOutBtn = <button onClick={() => signOut()}>Sign Out</button>;
+    const signOutBtn = <Button onClick={() => signOut()}>SignOut</Button>;
+
     if (sessionData.user.role === "admin") {
       toRender = (
         <>
           {signOutBtn}
-          <p>Plaese select art to upload</p>
-          <form onSubmit={uploadToS3}>
-            <label>
-              Select file to upload
-              <input
-                onChange={handleChange}
-                type="file"
-                accept="image/jpg image/jpeg image/png"
-                name="file"
-              />
-            </label>
-            <label>
-              Title <input type="text" name="title" />
-            </label>
-            <label>
-              <input type="checkbox" name="highlight" id="highlight" />
-              Highlight in main gallery
-            </label>
+          <h2>Upload an art</h2>
+          <form onSubmit={uploadToS3} className=" h-30 flex w-[600px] gap-3">
+            <div className="flex w-[300px] flex-col gap-2">
+              <TextInput placeholder="Title" name="title" />
 
-            <button
-              type="submit"
-              className=" rounded border-2 border-orange-300"
+              <label>
+                <input
+                  type="checkbox"
+                  name="highlight"
+                  id="highlight"
+                  className="mr-2"
+                />
+                Highlight in main gallery
+              </label>
+              <div>
+                <TextInput
+                  placeholder="Add tag"
+                  name="tag"
+                  onChange={handleTagChange}
+                  onKeyDown={handleAddTag}
+                  value={inputTag}
+                />
+
+                <ul className="flex flex-row flex-wrap gap-2">
+                  {tags.map((tag) => (
+                    <li
+                      key={tag}
+                      className="flex items-center gap-1 rounded border-2 border-slate-100 bg-slate-50 px-1 text-slate-500"
+                    >
+                      <span>{tag}</span>
+                      <FaTimes
+                        className="cursor-pointer text-slate-500"
+                        onClick={() => handleDeleteTag(tag)}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <button
+                type="submit"
+                className=" rounded border-2 border-orange-300"
+              >
+                Upload
+              </button>
+            </div>
+            <div
+              {...getRootProps()}
+              className="flex h-[100px] flex-1 flex-col items-center justify-center rounded-md border-2 border-slate-300 bg-slate-200 p-2 text-slate-400"
             >
-              {" "}
-              Upload
-            </button>
+              <input {...getInputProps()} />
+              {previewImg && imgSize && (
+                <NextImage
+                  src={previewImg}
+                  width={imgSize.width}
+                  height={imgSize.height}
+                  alt="preview"
+                  className=" h-auto max-h-full w-auto max-w-full"
+                ></NextImage>
+              )}
+              {!previewImg && (
+                <>
+                  <FaUpload />
+                  <p>Drag n drop some files here, or click to select files</p>
+                </>
+              )}
+            </div>
           </form>
           {gallery}
         </>
@@ -160,9 +271,7 @@ export default function AdminPage() {
       );
     }
   } else {
-    toRender = (
-      <button onClick={() => signIn("google")}>SignIn with Google</button>
-    );
+    toRender = signinBtn;
   }
 
   return <>{toRender}</>;
