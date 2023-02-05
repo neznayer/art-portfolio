@@ -140,7 +140,6 @@ export default function AdminPage() {
     });
   }
 
-  let toRender;
   const signOutBtn = <Button onClick={() => signOut()}>SignOut</Button>;
   const signinBtn = (
     <Button onClick={() => signIn("google")}>
@@ -149,105 +148,115 @@ export default function AdminPage() {
     </Button>
   );
 
-  if (sessionData && sessionData.user.role !== "admin") {
-    return (
-      <>
-        {signOutBtn}
-        <Gallery>
-          {allArts?.map((art) => {
-            return <GalleryItem mode="view" {...art} key={art.id} />;
-          })}
-        </Gallery>
-      </>
-    );
-  } else if (sessionData && sessionData.user.role === "admin") {
-    return (
-      <>
-        {signOutBtn}
-        <h2>Upload an art</h2>
-        <form onSubmit={uploadToS3} className=" h-30 flex w-[600px] gap-3">
-          <div className="flex w-[300px] flex-col gap-2">
-            <TextInput placeholder="Title" name="title" />
-
-            <label>
-              <input
-                type="checkbox"
-                name="highlight"
-                id="highlight"
-                className="mr-2"
-              />
-              Highlight in main gallery
-            </label>
-            <div>
-              <TextInput
-                placeholder="Add tag"
-                name="tag"
-                onChange={handleTagChange}
-                onKeyDown={handleAddTag}
-                value={inputTag}
-              />
-
-              <ul className="flex flex-row flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <li
-                    key={tag}
-                    className="flex items-center gap-1 rounded border-2 border-slate-100 bg-slate-50 px-1 text-slate-500"
-                  >
-                    <span>{tag}</span>
-                    <FaTimes
-                      className="cursor-pointer text-slate-500"
-                      onClick={() => handleDeleteTag(tag)}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <button
-              type="submit"
-              className=" rounded border-2 border-orange-300"
-            >
-              Upload
-            </button>
+  if (sessionData) {
+    if (sessionData?.user.role !== "admin") {
+      return (
+        <section className="flex w-full justify-center">
+          <div className="flex max-w-xl flex-col gap-3">
+            {signOutBtn}
+            <h1 className=" text-lg">Welcome, {sessionData.user.name}! </h1>
+            <p>
+              To upload art you must be an admin. Please use another account for
+              admin access. For now, non-admins can only view all, highlighted
+              and not highlighted arts.
+            </p>
+            <Gallery>
+              {allArts?.map((art) => {
+                return <GalleryItem mode="view" {...art} key={art.id} />;
+              })}
+            </Gallery>
           </div>
-          <div
-            {...getRootProps()}
-            className="flex h-[100px] flex-1 flex-col items-center justify-center rounded-md border-2 border-slate-300 bg-slate-200 p-2 text-slate-400"
-          >
-            <input {...getInputProps()} />
-            {previewImg && imgSize && (
-              <NextImage
-                src={previewImg}
-                width={imgSize.width}
-                height={imgSize.height}
-                alt="preview"
-                className=" h-auto max-h-full w-auto max-w-full"
-              ></NextImage>
-            )}
-            {!previewImg && (
-              <>
-                <FaUpload />
-                <p>Drag n drop some files here, or click to select files</p>
-              </>
-            )}
-          </div>
-        </form>
+        </section>
+      );
+    } else if (sessionData?.user.role === "admin") {
+      return (
+        <section className="flex w-full justify-center">
+          <div className="flex max-w-xl flex-col gap-3">
+            {signOutBtn}
+            <h1 className=" text-lg">Welcome, {sessionData.user.name}! </h1>
+            <form onSubmit={uploadToS3} className=" h-30 flex w-[600px] gap-3">
+              <div className="flex w-[300px] flex-col gap-2">
+                <TextInput placeholder="Title" name="title" />
 
-        {signOutBtn}
-        <Gallery>
-          {allArts?.map((art) => {
-            return (
-              <GalleryItem
-                onDelete={onDelete}
-                onHighlight={onAddHighLight}
-                mode="control"
-                {...art}
-                key={art.id}
-              />
-            );
-          })}
-        </Gallery>
-      </>
-    );
+                <label>
+                  <input
+                    type="checkbox"
+                    name="highlight"
+                    id="highlight"
+                    className="mr-2"
+                  />
+                  Highlight in main gallery
+                </label>
+                <div>
+                  <TextInput
+                    placeholder="Add tag"
+                    name="tag"
+                    onChange={handleTagChange}
+                    onKeyDown={handleAddTag}
+                    value={inputTag}
+                  />
+
+                  <ul className="flex flex-row flex-wrap gap-2">
+                    {tags.map((tag) => (
+                      <li
+                        key={tag}
+                        className="flex items-center gap-1 rounded border-2 border-slate-100 bg-slate-50 px-1 text-slate-500"
+                      >
+                        <span>{tag}</span>
+                        <FaTimes
+                          className="cursor-pointer text-slate-500"
+                          onClick={() => handleDeleteTag(tag)}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <button
+                  type="submit"
+                  className=" rounded border-2 border-orange-300"
+                >
+                  Upload
+                </button>
+              </div>
+              <div
+                {...getRootProps()}
+                className="flex h-[100px] flex-1 flex-col items-center justify-center rounded-md border-2 border-slate-300 bg-slate-200 p-2 text-slate-400"
+              >
+                <input {...getInputProps()} />
+                {previewImg && imgSize && (
+                  <NextImage
+                    src={previewImg}
+                    width={imgSize.width}
+                    height={imgSize.height}
+                    alt="preview"
+                    className=" h-auto max-h-full w-auto max-w-full"
+                  ></NextImage>
+                )}
+                {!previewImg && (
+                  <>
+                    <FaUpload />
+                    <p>Drag n drop some files here, or click to select files</p>
+                  </>
+                )}
+              </div>
+            </form>
+            <Gallery>
+              {allArts?.map((art) => {
+                return (
+                  <GalleryItem
+                    onDelete={onDelete}
+                    onHighlight={onAddHighLight}
+                    mode="control"
+                    {...art}
+                    key={art.id}
+                  />
+                );
+              })}
+            </Gallery>
+          </div>
+        </section>
+      );
+    }
   } else {
     return signinBtn;
   }
