@@ -3,17 +3,20 @@ import { FaHeart, FaTimes } from "react-icons/fa";
 import { type IArt } from "../../types/art";
 import styles from "./GalleryItem.module.css";
 
-interface IArtCardProps extends IArt {
+interface IArtProps extends IArt {
   mode: "view" | "control";
   onDelete?: (id: string) => void;
   onHighlight?: (id: string, highlight: boolean) => void;
+  className?: string;
 }
+
 export default function ArtCard({
   mode,
   onDelete,
   onHighlight,
+  className,
   ...artProps
-}: IArtCardProps) {
+}: IArtProps) {
   function handleDelete(id: string | undefined) {
     if (onDelete && id) {
       onDelete(id);
@@ -26,13 +29,13 @@ export default function ArtCard({
   }
   if (mode === "control") {
     return (
-      <div className={`${styles.container} relative`}>
+      <div className={`relative ${className}`}>
         <Image
           alt={artProps.title || ""}
           src={artProps.link || ""}
           width={artProps.width}
           height={artProps.height}
-          className="h-auto max-h-full w-auto max-w-full object-cover"
+          className="max-h-full w-auto max-w-full object-cover"
         ></Image>
         <h3>{artProps.title}</h3>
         <FaHeart
@@ -56,7 +59,7 @@ export default function ArtCard({
         src={artProps.link || ""}
         width={artProps.width}
         height={artProps.height}
-        className="h-auto max-h-full w-auto max-w-full object-cover"
+        className={`h-auto max-h-full w-auto max-w-full object-cover ${className}`}
       ></Image>
       <h3>{artProps.title}</h3>
     </div>

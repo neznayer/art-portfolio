@@ -7,6 +7,8 @@ import { type IArt } from "../types/art";
 import TagsField from "../components/Tags/TagsField";
 import { Transition, type TransitionStatus } from "react-transition-group";
 import GalleryItem from "../components/Gallery/GalleryItem";
+import Link from "next/link";
+import ViewLayout from "../components/ViewLayout";
 const duration = 300;
 
 const defaultStyle = {
@@ -62,13 +64,7 @@ const Home: NextPage = () => {
           content="Anton Nezanyer's artworks portfolio"
         />
       </Head>
-      <main className="flex flex-col justify-start gap-4">
-        <header className="flex h-[100px] items-center justify-center text-xl">
-          <h1 className={`${inter.className} inline-block`}>
-            Neznayer Art portfolio
-          </h1>
-        </header>
-
+      <ViewLayout>
         <div className="flex flex-1 gap-[12px] px-10">
           <section
             className={` flex w-[200px] flex-col gap-5 text-sm transition-all ${inter.className}`}
@@ -101,12 +97,20 @@ const Home: NextPage = () => {
             <div className="flex h-full w-[50%] flex-wrap">
               {isSuccess &&
                 shownArts?.map((art) => {
-                  return <GalleryItem key={art.id} {...art} mode="view" />;
+                  return (
+                    <Link
+                      key={art.id}
+                      href={`/art/${art.id}`}
+                      className="block"
+                    >
+                      <GalleryItem {...art} mode="view" className="w-[100px]" />
+                    </Link>
+                  );
                 })}
             </div>
           </section>
         </div>
-      </main>
+      </ViewLayout>
     </>
   );
 };
