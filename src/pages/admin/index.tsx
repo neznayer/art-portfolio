@@ -59,7 +59,6 @@ export default function AdminPage() {
   async function uploadToS3(e: ChangeEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.target);
-
     const title = formData.get("title")?.toString() as string;
     const description = formData.get("description") as string;
     const highlight = !!formData.get("highlight");
@@ -92,6 +91,9 @@ export default function AdminPage() {
       });
 
       await utils.art.allArts.invalidate();
+
+      setInputTag("");
+      setTags([]);
     } catch (error) {
       console.error("Some error while uploading to s3", error);
     }
