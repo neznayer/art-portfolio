@@ -61,7 +61,7 @@ export default function AdminPage() {
     const formData = new FormData(e.target);
 
     const title = formData.get("title")?.toString() as string;
-    const description = "some descr";
+    const description = formData.get("description") as string;
     const highlight = !!formData.get("highlight");
 
     if (!file) {
@@ -177,7 +177,7 @@ export default function AdminPage() {
             <form onSubmit={uploadToS3} className=" h-30 flex w-[600px] gap-3">
               <div className="flex w-[300px] flex-col gap-2">
                 <TextInput placeholder="Title" name="title" />
-
+                <TextInput placeholder="Description" name="description" />
                 <label>
                   <input
                     type="checkbox"
