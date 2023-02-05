@@ -29,7 +29,7 @@ export default function AdminPage() {
   const { data: allArts } = api.art.allArts.useQuery();
   const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
   const [tags, setTags] = useState<string[]>([]);
-  const [file, setFile] = useState<File | null>(null);
+  const [file, setFile] = useState<File>();
   const [previewImg, setPreviewImg] = useState<string | null | undefined>();
 
   const utils = api.useContext();
@@ -47,6 +47,7 @@ export default function AdminPage() {
         setPreviewImg(e.target?.result as string);
       };
       reader.readAsDataURL(upFile);
+      setFile(upFile);
     });
   }, []);
   const { getRootProps, getInputProps } = useDropzone({
@@ -92,8 +93,6 @@ export default function AdminPage() {
       await utils.art.allArts.invalidate();
     } catch (error) {
       console.error("Some error while uploading to s3", error);
-    } finally {
-      setFile(null);
     }
   }
 
@@ -215,10 +214,10 @@ export default function AdminPage() {
               </button>
             </div>
             <div
-              {...getRootProps({ ondrop })}
+              {...getRootProps()}
               className="flex h-[100px] flex-1 flex-col items-center justify-center rounded-md border-2 border-slate-300 bg-slate-200 p-2 text-slate-400"
             >
-              <input {...getInputProps({})} />
+              <input {...getInputProps()} />
               {previewImg && imgSize && (
                 <NextImage
                   src={previewImg}

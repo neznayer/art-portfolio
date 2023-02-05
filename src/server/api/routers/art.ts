@@ -50,6 +50,11 @@ export const artRouter = createTRPCRouter({
     .query(({ ctx, input }) => {
       return ctx.prisma.art.findFirst({ where: { id: input.id } });
     }),
+  allTags: publicProcedure.query(({ ctx }) => {
+    return ctx.prisma.art
+      .findMany()
+      .then((found) => [...new Set(found.flatMap((f) => f.tags))]);
+  }),
   remove: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(({ ctx, input }) => {

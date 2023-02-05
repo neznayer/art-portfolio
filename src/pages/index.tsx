@@ -13,6 +13,7 @@ const Home: NextPage = () => {
   const { data: artsArray, isSuccess } = api.art.highlightedArts.useQuery({
     tag: selectedTag,
   });
+  const { data: allTags } = api.art.allTags.useQuery();
 
   function handleTagFilter(tag: string) {
     setSelectedTag(tag);
@@ -21,15 +22,6 @@ const Home: NextPage = () => {
   function handleRemoveTagFilter() {
     setSelectedTag("");
   }
-
-  useEffect(() => {
-    if (selectedTag) {
-      setTags([selectedTag]);
-    } else {
-      const uniqueTags = [...new Set(artsArray?.flatMap((art) => art.tags))];
-      setTags(uniqueTags);
-    }
-  }, [artsArray, selectedTag]);
 
   return (
     <>
@@ -60,7 +52,7 @@ const Home: NextPage = () => {
             )}
             <h3>Tags</h3>
             <div className="flex flex-row flex-wrap gap-2">
-              {tags.map((tag) => (
+              {allTags?.map((tag) => (
                 <span
                   className=" rounded border-2 border-zinc-200 bg-slate-100 p-1 text-sm text-slate-600"
                   key={tag}

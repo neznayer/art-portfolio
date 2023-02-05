@@ -1,14 +1,7 @@
 import Image from "next/image";
+import { type IArt } from "../types/art";
 import styles from "./art-card.module.css";
-interface IArtProps {
-  link: string;
-  title: string;
-  tags: string[];
-  description: string;
-  width: number;
-  height: number;
-  highlight?: boolean;
-}
+
 
 export default function ArtCard({
   title,
@@ -16,7 +9,7 @@ export default function ArtCard({
   width,
   height,
   highlight,
-}: IArtProps) {
+}: IArt) {
   return (
     <div className={styles.container}>
       <Image
