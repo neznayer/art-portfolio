@@ -3,19 +3,16 @@ import {
   useState,
   type ChangeEvent,
   useCallback,
-  useEffect,
 } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
+import NextImage from "next/image";
+import { api } from "../../utils/api";
+import { useDropzone } from "react-dropzone";
+import { FaGoogle, FaTimes, FaUpload } from "react-icons/fa";
 import Gallery from "../../components/Gallery/Gallery";
 import GalleryItem from "../../components/Gallery/GalleryItem";
-import { api } from "../../utils/api";
-import { FaGoogle, FaTimes, FaUpload } from "react-icons/fa";
 import Button from "../../components/Button";
-import { useDropzone } from "react-dropzone";
 import TextInput from "../../components/TextInput";
-
-import NextImage from "next/image";
-import { type IArt } from "../../types/art";
 
 interface IgetPutUrlResponse {
   putUrl: string;
@@ -34,12 +31,10 @@ export default function AdminPage() {
   const [tags, setTags] = useState<string[]>([]);
   const [file, setFile] = useState<File>();
   const [previewImg, setPreviewImg] = useState<string | null | undefined>();
-  const [shownArts, setShownArts] = useState<IArt[]>([]);
 
   const utils = api.useContext();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    // Do something with the files
     acceptedFiles.forEach((upFile) => {
       const reader = new FileReader();
       reader.onload = function (e) {
@@ -54,6 +49,7 @@ export default function AdminPage() {
       setFile(upFile);
     });
   }, []);
+
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     maxSize: 5 * 1024 ** 2,
@@ -144,135 +140,115 @@ export default function AdminPage() {
     });
   }
 
-  useEffect(() => {
-    if (allArts) {
-      Promise.all(
-        allArts.map((art) =>
-          fetch(`/api/get-art?key=${art.key}`).then((res) => res.json())
-        )
-      ).then((artsGetUrlArr) => {
-        setShownArts(
-          artsGetUrlArr.map((art, i) => {
-            return {
-              ...allArts[i],
-              link: art.url,
-            };
-          })
-        );
-      });
-    }
-  }, [allArts]);
-
   let toRender;
+  const signOutBtn = <Button onClick={() => signOut()}>SignOut</Button>;
   const signinBtn = (
     <Button onClick={() => signIn("google")}>
       <FaGoogle color="red" className="mr-1 inline-block text-lg" /> SignIn with
       Google
     </Button>
   );
-  if (sessionData?.user.role === "admin") {
-    const gallery = (
-      <Gallery>
-        {shownArts?.map((art) => {
-          return (
-            <GalleryItem
-              onDelete={onDelete}
-              onHighlight={onAddHighLight}
-              key={art.id}
-              mode="control"
-              {...art}
-            />
-          );
-        })}
-      </Gallery>
+
+  if (sessionData && sessionData.user.role !== "admin") {
+    return (
+      <>
+        {signOutBtn}
+        <Gallery>
+          {allArts?.map((art) => {
+            return <GalleryItem mode="view" {...art} key={art.id} />;
+          })}
+        </Gallery>
+      </>
     );
-    const signOutBtn = <Button onClick={() => signOut()}>SignOut</Button>;
+  } else if (sessionData && sessionData.user.role === "admin") {
+    return (
+      <>
+        {signOutBtn}
+        <h2>Upload an art</h2>
+        <form onSubmit={uploadToS3} className=" h-30 flex w-[600px] gap-3">
+          <div className="flex w-[300px] flex-col gap-2">
+            <TextInput placeholder="Title" name="title" />
 
-    if (sessionData.user.role === "admin") {
-      toRender = (
-        <>
-          {signOutBtn}
-          <h2>Upload an art</h2>
-          <form onSubmit={uploadToS3} className=" h-30 flex w-[600px] gap-3">
-            <div className="flex w-[300px] flex-col gap-2">
-              <TextInput placeholder="Title" name="title" />
+            <label>
+              <input
+                type="checkbox"
+                name="highlight"
+                id="highlight"
+                className="mr-2"
+              />
+              Highlight in main gallery
+            </label>
+            <div>
+              <TextInput
+                placeholder="Add tag"
+                name="tag"
+                onChange={handleTagChange}
+                onKeyDown={handleAddTag}
+                value={inputTag}
+              />
 
-              <label>
-                <input
-                  type="checkbox"
-                  name="highlight"
-                  id="highlight"
-                  className="mr-2"
-                />
-                Highlight in main gallery
-              </label>
-              <div>
-                <TextInput
-                  placeholder="Add tag"
-                  name="tag"
-                  onChange={handleTagChange}
-                  onKeyDown={handleAddTag}
-                  value={inputTag}
-                />
-
-                <ul className="flex flex-row flex-wrap gap-2">
-                  {tags.map((tag) => (
-                    <li
-                      key={tag}
-                      className="flex items-center gap-1 rounded border-2 border-slate-100 bg-slate-50 px-1 text-slate-500"
-                    >
-                      <span>{tag}</span>
-                      <FaTimes
-                        className="cursor-pointer text-slate-500"
-                        onClick={() => handleDeleteTag(tag)}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <button
-                type="submit"
-                className=" rounded border-2 border-orange-300"
-              >
-                Upload
-              </button>
+              <ul className="flex flex-row flex-wrap gap-2">
+                {tags.map((tag) => (
+                  <li
+                    key={tag}
+                    className="flex items-center gap-1 rounded border-2 border-slate-100 bg-slate-50 px-1 text-slate-500"
+                  >
+                    <span>{tag}</span>
+                    <FaTimes
+                      className="cursor-pointer text-slate-500"
+                      onClick={() => handleDeleteTag(tag)}
+                    />
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div
-              {...getRootProps()}
-              className="flex h-[100px] flex-1 flex-col items-center justify-center rounded-md border-2 border-slate-300 bg-slate-200 p-2 text-slate-400"
+            <button
+              type="submit"
+              className=" rounded border-2 border-orange-300"
             >
-              <input {...getInputProps()} />
-              {previewImg && imgSize && (
-                <NextImage
-                  src={previewImg}
-                  width={imgSize.width}
-                  height={imgSize.height}
-                  alt="preview"
-                  className=" h-auto max-h-full w-auto max-w-full"
-                ></NextImage>
-              )}
-              {!previewImg && (
-                <>
-                  <FaUpload />
-                  <p>Drag n drop some files here, or click to select files</p>
-                </>
-              )}
-            </div>
-          </form>
-          {gallery}
-        </>
-      );
-    } else {
-      toRender = (
-        <>
-          {signOutBtn}
-          {gallery}
-        </>
-      );
-    }
-  } else {
-    toRender = signinBtn;
-  }
+              Upload
+            </button>
+          </div>
+          <div
+            {...getRootProps()}
+            className="flex h-[100px] flex-1 flex-col items-center justify-center rounded-md border-2 border-slate-300 bg-slate-200 p-2 text-slate-400"
+          >
+            <input {...getInputProps()} />
+            {previewImg && imgSize && (
+              <NextImage
+                src={previewImg}
+                width={imgSize.width}
+                height={imgSize.height}
+                alt="preview"
+                className=" h-auto max-h-full w-auto max-w-full"
+              ></NextImage>
+            )}
+            {!previewImg && (
+              <>
+                <FaUpload />
+                <p>Drag n drop some files here, or click to select files</p>
+              </>
+            )}
+          </div>
+        </form>
 
-  return <>{toRender}</>;
+        {signOutBtn}
+        <Gallery>
+          {allArts?.map((art) => {
+            return (
+              <GalleryItem
+                onDelete={onDelete}
+                onHighlight={onAddHighLight}
+                mode="control"
+                {...art}
+                key={art.id}
+              />
+            );
+          })}
+        </Gallery>
+      </>
+    );
+  } else {
+    return signinBtn;
+  }
 }
