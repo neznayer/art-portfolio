@@ -67,4 +67,5 @@ model Art {
     width       Int      @default(0)
     height      Int      @default(0)
     highlight   Boolean  @default(false)
+    key         String   @default("")
 }

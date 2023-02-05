@@ -4,16 +4,17 @@ import { Inter } from "@next/font/google";
 import { api } from "../utils/api";
 import ArtCard from "../components/ArtCard";
 import { useEffect, useState } from "react";
+import { type IArt } from "../types/art";
 
 const inter = Inter({ subsets: ["latin"], weight: "200" });
 
 const Home: NextPage = () => {
-  const [tags, setTags] = useState<string[]>([]);
   const [selectedTag, setSelectedTag] = useState<string>("");
   const { data: artsArray, isSuccess } = api.art.highlightedArts.useQuery({
     tag: selectedTag,
   });
   const { data: allTags } = api.art.allTags.useQuery();
+  const [shownArts, setShownArts] = useState<IArt[]>([]);
 
   function handleTagFilter(tag: string) {
     setSelectedTag(tag);
@@ -22,6 +23,25 @@ const Home: NextPage = () => {
   function handleRemoveTagFilter() {
     setSelectedTag("");
   }
+
+  useEffect(() => {
+    if (artsArray) {
+      Promise.all(
+        artsArray.map((art) =>
+          fetch(`/api/get-art?key=${art.key}`).then((res) => res.json())
+        )
+      ).then((artsGetUrlArr) => {
+        setShownArts(
+          artsGetUrlArr.map((art, i) => {
+            return {
+              ...artsArray[i],
+              link: art.url,
+            };
+          })
+        );
+      });
+    }
+  }, [artsArray]);
 
   return (
     <>
@@ -65,7 +85,7 @@ const Home: NextPage = () => {
           </section>
           <section className=" flex flex-1 flex-wrap content-start items-center gap-3">
             {isSuccess &&
-              artsArray?.map((art) => {
+              shownArts?.map((art) => {
                 return <ArtCard key={art.id} {...art} />;
               })}
           </section>

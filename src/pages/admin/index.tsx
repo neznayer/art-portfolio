@@ -3,6 +3,7 @@ import {
   useState,
   type ChangeEvent,
   useCallback,
+  useEffect,
 } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Gallery from "../../components/Gallery/Gallery";
@@ -14,10 +15,12 @@ import { useDropzone } from "react-dropzone";
 import TextInput from "../../components/TextInput";
 
 import NextImage from "next/image";
+import { type IArt } from "../../types/art";
 
 interface IgetPutUrlResponse {
   putUrl: string;
   getUrl: string;
+  key: string;
 }
 
 export default function AdminPage() {
@@ -31,6 +34,7 @@ export default function AdminPage() {
   const [tags, setTags] = useState<string[]>([]);
   const [file, setFile] = useState<File>();
   const [previewImg, setPreviewImg] = useState<string | null | undefined>();
+  const [shownArts, setShownArts] = useState<IArt[]>([]);
 
   const utils = api.useContext();
 
@@ -75,7 +79,7 @@ export default function AdminPage() {
         `/api/upload-art?fileType=${fileType}`
       );
 
-      const { putUrl, getUrl } =
+      const { putUrl, getUrl, key } =
         (await getPutUrlResponse.json()) as IgetPutUrlResponse;
 
       await fetch(putUrl, { method: "PUT", body: file });
@@ -88,6 +92,7 @@ export default function AdminPage() {
         width: imgSize.width,
         height: imgSize.height,
         highlight,
+        key,
       });
 
       await utils.art.allArts.invalidate();
@@ -139,6 +144,25 @@ export default function AdminPage() {
     });
   }
 
+  useEffect(() => {
+    if (allArts) {
+      Promise.all(
+        allArts.map((art) =>
+          fetch(`/api/get-art?key=${art.key}`).then((res) => res.json())
+        )
+      ).then((artsGetUrlArr) => {
+        setShownArts(
+          artsGetUrlArr.map((art, i) => {
+            return {
+              ...allArts[i],
+              link: art.url,
+            };
+          })
+        );
+      });
+    }
+  }, [allArts]);
+
   let toRender;
   const signinBtn = (
     <Button onClick={() => signIn("google")}>
@@ -149,7 +173,7 @@ export default function AdminPage() {
   if (sessionData) {
     const gallery = (
       <Gallery>
-        {allArts?.map((art) => {
+        {shownArts?.map((art) => {
           return (
             <GalleryItem
               admin={sessionData.user.role === "admin"}
