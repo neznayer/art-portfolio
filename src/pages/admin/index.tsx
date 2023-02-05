@@ -170,17 +170,17 @@ export default function AdminPage() {
       Google
     </Button>
   );
-  if (sessionData) {
+  if (sessionData?.user.role === "admin") {
     const gallery = (
       <Gallery>
         {shownArts?.map((art) => {
           return (
             <GalleryItem
-              admin={sessionData.user.role === "admin"}
               onDelete={onDelete}
-              onAddHighlight={onAddHighLight}
+              onHighlight={onAddHighLight}
               key={art.id}
-              art={art}
+              mode="control"
+              {...art}
             />
           );
         })}

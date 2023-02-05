@@ -1,41 +1,64 @@
 import Image from "next/image";
-import styles from "./GalleryItem.module.css";
 import { FaHeart, FaTimes } from "react-icons/fa";
 import { type IArt } from "../../types/art";
+import styles from "./GalleryItem.module.css";
 
-interface GalleryItemProps {
-  art: IArt;
-  onDelete: (link: string) => void;
-  onAddHighlight: (id: string, highlight: boolean) => void;
-  admin: boolean;
+interface IArtCardProps extends IArt {
+  mode: "view" | "control";
+  onDelete?: (id: string) => void;
+  onHighlight?: (id: string, highlight: boolean) => void;
 }
-
-export default function GalletyItem({
-  art,
+export default function ArtCard({
+  mode,
   onDelete,
-  onAddHighlight,
-}: GalleryItemProps) {
+  onHighlight,
+  ...artProps
+}: IArtCardProps) {
+  function handleDelete(id: string | undefined) {
+    if (onDelete && id) {
+      onDelete(id);
+    }
+  }
+  function handleHighlight(id: string | undefined, highlight: boolean) {
+    if (onHighlight && id) {
+      onHighlight(id, highlight);
+    }
+  }
+  if (mode === "control") {
+    return (
+      <div className={`${styles.container} relative`}>
+        <Image
+          alt={artProps.title || ""}
+          src={artProps.link || ""}
+          width={artProps.width}
+          height={artProps.height}
+          className="h-auto max-h-full w-auto max-w-full object-cover"
+        ></Image>
+        <h3>{artProps.title}</h3>
+        <FaHeart
+          className={`absolute top-2 left-2 cursor-pointer ${
+            artProps.highlight && "text-red-400"
+          }`}
+          onClick={() => handleHighlight(artProps.id, !artProps.highlight)}
+        />
+        <FaTimes
+          className="absolute top-2 right-2 cursor-pointer"
+          onClick={() => handleDelete(artProps.id)}
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className={styles.item}>
+    <div className={styles.container}>
       <Image
-        src={art.link}
-        alt={art.description}
-        width={art.width}
-        height={art.height}
-      />
-
-      <div className={styles["delete-btn"]}>
-        <FaTimes onClick={() => onDelete(art.id)} />
-      </div>
-
-      <div
-        onClick={() => onAddHighlight(art.id, !art.highlight)}
-        className={`absolute top-3 left-3 cursor-pointer hover:text-red-600 ${
-          art.highlight && " text-red-400 "
-        }`}
-      >
-        <FaHeart />
-      </div>
+        alt={artProps.title || ""}
+        src={artProps.link || ""}
+        width={artProps.width}
+        height={artProps.height}
+        className="h-auto max-h-full w-auto max-w-full object-cover"
+      ></Image>
+      <h3>{artProps.title}</h3>
     </div>
   );
 }

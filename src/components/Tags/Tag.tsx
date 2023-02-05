@@ -9,7 +9,7 @@ interface ITagProps {
 export default function Tag({ tag, mode, onClick }: ITagProps) {
   if (mode === "control") {
     return (
-      <span className=" rounded border-2 border-zinc-200 bg-slate-100 p-1 text-sm text-slate-600">
+      <span className=" select-none rounded border-[1px] border-zinc-200 bg-slate-100 p-1 text-xs text-slate-600 hover:bg-slate-50">
         <span>{tag}</span>
         <FaTimes
           onClick={onClick}
@@ -20,7 +20,7 @@ export default function Tag({ tag, mode, onClick }: ITagProps) {
   }
   return (
     <span
-      className=" cursor-pointer rounded border-2 border-zinc-200 bg-slate-100 p-1 text-sm text-slate-600"
+      className=" cursor-pointer select-none rounded border-[1px] border-zinc-200 bg-slate-100 p-1 text-xs text-slate-600 hover:bg-slate-50"
       onClick={onClick}
     >
       {tag}
