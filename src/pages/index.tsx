@@ -5,41 +5,35 @@ import { api } from "../utils/api";
 import ArtCard from "../components/ArtCard";
 import { useEffect, useState } from "react";
 import { type IArt } from "../types/art";
+import TagsField from "../components/Tags/TagsField";
 
 const inter = Inter({ subsets: ["latin"], weight: "200" });
 
 const Home: NextPage = () => {
   const [selectedTag, setSelectedTag] = useState<string>("");
-  const { data: artsArray, isSuccess } = api.art.highlightedArts.useQuery({
-    tag: selectedTag,
+  const { data: artsArray, isSuccess } = api.art.highlightedArts.useQuery(
+    undefined,
+    { refetchOnWindowFocus: false }
+  );
+
+  const { data: allTags } = api.art.allTags.useQuery(undefined, {
+    refetchOnWindowFocus: false,
   });
-  const { data: allTags } = api.art.allTags.useQuery();
   const [shownArts, setShownArts] = useState<IArt[]>([]);
 
   function handleTagFilter(tag: string) {
     setSelectedTag(tag);
+    setShownArts(artsArray?.filter((art) => art.tags?.includes(tag)) || []);
   }
 
   function handleRemoveTagFilter() {
     setSelectedTag("");
+    setShownArts(artsArray || []);
   }
 
   useEffect(() => {
     if (artsArray) {
-      Promise.all(
-        artsArray.map((art) =>
-          fetch(`/api/get-art?key=${art.key}`).then((res) => res.json())
-        )
-      ).then((artsGetUrlArr) => {
-        setShownArts(
-          artsGetUrlArr.map((art, i) => {
-            return {
-              ...artsArray[i],
-              link: art.url,
-            };
-          })
-        );
-      });
+      setShownArts(artsArray);
     }
   }, [artsArray]);
 
@@ -59,35 +53,30 @@ const Home: NextPage = () => {
           </h1>
         </header>
 
-        <div className="flex flex-1 gap-[12px]">
+        <div className="flex flex-1 gap-[12px] px-10">
           <section className="w-[200px]">
             <h3>Selected tag</h3>
             {selectedTag && (
-              <span
-                className=" rounded border-2 border-zinc-200 bg-slate-100 p-1 text-sm text-slate-600"
-                onClick={handleRemoveTagFilter}
-              >
-                {selectedTag}
-              </span>
+              <TagsField
+                tags={[selectedTag]}
+                onTagClick={handleRemoveTagFilter}
+                mode="control"
+              />
             )}
             <h3>Tags</h3>
-            <div className="flex flex-row flex-wrap gap-2">
-              {allTags?.map((tag) => (
-                <span
-                  className=" rounded border-2 border-zinc-200 bg-slate-100 p-1 text-sm text-slate-600"
-                  key={tag}
-                  onClick={() => handleTagFilter(tag)}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
+            <TagsField
+              tags={allTags || []}
+              onTagClick={handleTagFilter}
+              mode="view"
+            />
           </section>
-          <section className=" flex flex-1 flex-wrap content-start items-center gap-3">
-            {isSuccess &&
-              shownArts?.map((art) => {
-                return <ArtCard key={art.id} {...art} />;
-              })}
+          <section className="flex flex-1 items-start justify-center">
+            <div className="flex h-full w-[50%] flex-wrap">
+              {isSuccess &&
+                shownArts?.map((art) => {
+                  return <ArtCard key={art.id} {...art} />;
+                })}
+            </div>
           </section>
         </div>
       </main>

@@ -10,7 +10,7 @@ export default function ArtCard({ title, link, width, height }: IArt) {
         src={link || ""}
         width={width}
         height={height}
-        className={styles.image}
+        className="h-auto max-h-full w-auto max-w-full object-cover"
       ></Image>
       <h3>{title}</h3>
     </div>
