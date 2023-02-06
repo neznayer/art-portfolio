@@ -93,8 +93,8 @@ const Home: NextPage = () => {
               mode="view"
             />
           </section>
-          <section className="flex flex-1 items-start justify-center">
-            <div className="flex h-full w-[50%] flex-wrap">
+          <section className="flex h-full items-start justify-center">
+            <div className="flex w-[50%] flex-wrap overflow-auto">
               {isSuccess &&
                 shownArts?.map((art) => {
                   return (
@@ -103,7 +103,7 @@ const Home: NextPage = () => {
                       href={`/art/${art.id}`}
                       className="block"
                     >
-                      <GalleryItem {...art} mode="view" className="w-[100px]" />
+                      <GalleryItem {...art} mode="view" />
                     </Link>
                   );
                 })}

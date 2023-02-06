@@ -19,10 +19,8 @@
 }
 
 .container {
-  background-color: white;
-  border-radius: 5px;
-  padding: 3px;
   position: relative;
+  overflow: hidden;
 }
 
 .container > h3 {
@@ -35,12 +33,15 @@
 }
 
 .container > img {
-  transition: opacity 0.2s ease-in-out;
+  transition: all 0.3s ease-in-out;
+  transition-property: opacity, scale;
 }
 
 .container:hover > img {
-  transition: opacity 0.2s ease-in-out;
+  scale: 1.02;
   opacity: 0.7;
+  transition: all 0.3s ease-in-out;
+  transition-property: opacity, scale;
 }
 
 .container:hover > h3 {
@@ -48,4 +49,54 @@
   opacity: 1;
   position: absolute;
   transition: opacity 0.2s ease-in-out;
+}
+
+.container::after {
+  opacity: 0;
+  transition: all 0.2s ease-in-out;
+  transition-property: opacity, top, right;
+  content: "";
+  width: 200%;
+  height: 120%;
+  position: absolute;
+  top: 100%;
+  right: 100%;
+  transform: rotate(45deg);
+  background-color: rgb(187, 221, 217);
+  pointer-events: none;
+  mix-blend-mode: lighten;
+}
+
+.container:hover::after {
+  top: 70%;
+  right: -10%;
+  opacity: 0.2;
+  transition: all 0.2s ease-out;
+  transition-property: opacity, top, right;
+  mix-blend-mode: lighten;
+}
+
+.container::before {
+  opacity: 0;
+  transition: all 0.4s ease-out;
+  transition-property: opacity, top, right;
+  content: "";
+  width: 200%;
+  height: 120%;
+  position: absolute;
+  top: 100%;
+  left: 100%;
+  transform: rotate(-45deg);
+  background-color: rgb(225, 203, 188);
+  pointer-events: none;
+  mix-blend-mode: lighten;
+}
+
+.container:hover::before {
+  top: 20%;
+  left: 10%;
+  opacity: 0.2;
+  transition: all 0.4s ease-out;
+  transition-property: opacity, top, right;
+  mix-blend-mode: lighten;
 }
