@@ -10,19 +10,24 @@ export default function ArtById() {
 
   const id = router.query.id as string;
 
-  const { data } = api.art.getById.useQuery({ id });
+  const { data, isFetched } = api.art.getById.useQuery({ id });
 
   return (
     <ViewLayout>
       <section className=" my-0 mx-auto flex w-full flex-col items-center justify-center">
-        <GalleryItem mode="view" {...data} className="h-[500px]" />
-        <h1 className="text-left text-lg">{data?.title}</h1>
-        <h2>{data?.description}</h2>
-        <TagsField
-          onTagClick={() => null}
-          mode="view"
-          tags={data?.tags || []}
-        />
+        {isFetched && (
+          <>
+            <GalleryItem mode="large_view" {...data} className="h-[500px]" />
+
+            <h1 className="text-left text-lg">{data?.title}</h1>
+            <h2>{data?.description}</h2>
+            <TagsField
+              onTagClick={() => null}
+              mode="view"
+              tags={data?.tags || []}
+            />
+          </>
+        )}
       </section>
     </ViewLayout>
   );

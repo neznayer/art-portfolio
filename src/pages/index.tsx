@@ -103,7 +103,11 @@ const Home: NextPage = () => {
                       href={`/art/${art.id}`}
                       className="block"
                     >
-                      <GalleryItem {...art} mode="view" />
+                      <GalleryItem
+                        {...art}
+                        mode="view"
+                        className="h-[150px] w-[150px]"
+                      />
                     </Link>
                   );
                 })}

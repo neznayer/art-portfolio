@@ -4,7 +4,7 @@ import { type IArt } from "../../types/art";
 import styles from "./GalleryItem.module.css";
 
 interface IArtProps extends IArt {
-  mode: "view" | "control";
+  mode: "view" | "control" | "large_view";
   onDelete?: (id: string) => void;
   onHighlight?: (id: string, highlight: boolean) => void;
   className?: string;
@@ -53,7 +53,11 @@ export default function ArtCard({
   }
 
   return (
-    <div className={`${styles.container} h-[150px] w-[150px]`}>
+    <div
+      className={`${styles.container} ${className} ${
+        mode === "large_view" ? "" : "-hover"
+      }`}
+    >
       <Image
         alt={artProps.title || ""}
         src={artProps.link || ""}
