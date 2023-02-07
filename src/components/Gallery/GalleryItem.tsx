@@ -53,13 +53,13 @@ export default function ArtCard({
   }
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} h-[150px] w-[150px]`}>
       <Image
         alt={artProps.title || ""}
         src={artProps.link || ""}
         width={artProps.width}
         height={artProps.height}
-        className={`h-auto max-h-full w-auto max-w-full object-cover ${className}`}
+        className={`h-full w-full object-cover`}
       ></Image>
       <h3>{artProps.title}</h3>
     </div>
