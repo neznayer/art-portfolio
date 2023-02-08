@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { FaHeart, FaTimes } from "react-icons/fa";
 import { type IArt } from "../../types/art";
-import styles from "./GalleryItem.module.css";
+import styles from "./GalleryItem.module.sass";
 
 interface IArtProps extends IArt {
   mode: "view" | "control" | "large_view";
@@ -55,9 +55,10 @@ export default function ArtCard({
   return (
     <div
       className={`${styles.container} ${className} ${
-        mode === "large_view" ? "" : "-hover"
+        mode === "large_view" ? "" : styles["container-hover"]
       }`}
     >
+      <h3 className=" z-10">{artProps.title}</h3>
       <Image
         alt={artProps.title || ""}
         src={artProps.link || ""}
@@ -65,7 +66,6 @@ export default function ArtCard({
         height={artProps.height}
         className={`h-full w-full object-cover`}
       ></Image>
-      <h3>{artProps.title}</h3>
     </div>
   );
 }

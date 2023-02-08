@@ -6,13 +6,27 @@ import { api } from "../utils/api";
 
 import "../styles/globals.css";
 
+import { ArtContext, TagsContext } from "../utils/Context";
+
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
+  const { data: artsArray } = api.art.highlightedArts.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: allTags } = api.art.allTags.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
+
   return (
     <SessionProvider session={session}>
-      <Component {...pageProps} />
+      <ArtContext.Provider value={artsArray || []}>
+        <TagsContext.Provider value={allTags || []}>
+          <Component {...pageProps} />
+        </TagsContext.Provider>
+      </ArtContext.Provider>
     </SessionProvider>
   );
 };
