@@ -3,27 +3,51 @@ import { api } from "../../utils/api";
 
 import GalleryItem from "../../components/Gallery/GalleryItem";
 import TagsField from "../../components/Tags/TagsField";
-import ViewLayout from "../../components/ViewLayout";
+import LargeViewLayout from "../../components/LargeViewLayout";
+import { FaAngleLeft } from "react-icons/fa";
+import Link from "next/link";
+import Head from "next/head";
 
 export default function ArtById() {
   const router = useRouter();
 
   const id = router.query.id as string;
 
-  const { data } = api.art.getById.useQuery({ id });
+  const { data, isFetched } = api.art.getById.useQuery({ id });
 
   return (
-    <ViewLayout>
-      <section className=" my-0 mx-auto flex w-full flex-col items-center justify-center">
-        <GalleryItem mode="view" {...data} className="h-[500px]" />
-        <h1 className="text-left text-lg">{data?.title}</h1>
-        <h2>{data?.description}</h2>
-        <TagsField
-          onTagClick={() => null}
-          mode="view"
-          tags={data?.tags || []}
-        />
+    <>
+      <Head>
+        <title>{`Neznayer art portfolio: ${data?.title}`}</title>
+      </Head>
+      <Link
+        className="absolute left-5 top-5 cursor-pointer text-3xl text-dark-gray"
+        href="/"
+      >
+        <FaAngleLeft />
+      </Link>
+      <section className="flex w-full flex-col items-center justify-center">
+        {isFetched && (
+          <LargeViewLayout className=" bg-white" mode="large">
+            <GalleryItem mode="large_view" {...data} className="h-[500px]" />
+
+            <dl>
+              <dt>
+                <h2 className="text-left text-lg">{data?.title}</h2>
+              </dt>
+              <dd>
+                <h3>{data?.description}</h3>
+              </dd>
+            </dl>
+
+            <TagsField
+              onTagClick={() => null}
+              mode="view"
+              tags={data?.tags || []}
+            />
+          </LargeViewLayout>
+        )}
       </section>
-    </ViewLayout>
+    </>
   );
 }

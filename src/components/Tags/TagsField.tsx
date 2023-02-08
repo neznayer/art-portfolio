@@ -4,11 +4,17 @@ interface ITagsFieldProps {
   tags: string[];
   mode: "control" | "view";
   onTagClick: (tag: string) => void;
+  className?: string;
 }
 
-export default function TagsField({ mode, tags, onTagClick }: ITagsFieldProps) {
+export default function TagsField({
+  mode,
+  tags,
+  onTagClick,
+  className,
+}: ITagsFieldProps) {
   return (
-    <div className="flex flex-row flex-wrap gap-2">
+    <div className={`flex flex-row flex-wrap gap-2 ${className}`}>
       {tags.map((tag) => {
         return (
           <Tag

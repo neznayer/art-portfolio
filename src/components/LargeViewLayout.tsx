@@ -1,0 +1,35 @@
+import { type PropsWithChildren } from "react";
+import { Inter } from "@next/font/google";
+
+const inter = Inter({ subsets: ["latin"], weight: "200" });
+
+interface ILargeViewLayoutProps extends PropsWithChildren {
+  className?: string;
+  mode?: string;
+}
+export default function LargeViewLayout({
+  children,
+  mode,
+  className,
+}: ILargeViewLayoutProps) {
+  return (
+    <section
+      className={`flex h-[100vh] flex-1 flex-col items-start overflow-auto bg-bg-gray ${className}`}
+    >
+      <div className="flex w-full flex-col gap-2">
+        <header
+          className={`${inter.className} relative flex h-20 items-center justify-center text-xl`}
+        >
+          <h1 className="block text-center text-dark-gray">Neznayer art</h1>
+        </header>
+        <div
+          className={`flex flex-wrap justify-center gap-4 px-5 ${
+            mode ? "flex-col" : "flex-row"
+          }`}
+        >
+          {children}
+        </div>
+      </div>
+    </section>
+  );
+}

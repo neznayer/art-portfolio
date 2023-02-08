@@ -47,8 +47,11 @@ export const artRouter = createTRPCRouter({
       });
     }),
   getById: publicProcedure
-    .input(z.object({ id: z.string() }))
+    .input(z.object({ id: z.string().optional() }))
     .query(({ ctx, input }) => {
+      if (!input.id) {
+        return null;
+      }
       return ctx.prisma.art.findFirst({ where: { id: input.id } });
     }),
   allTags: publicProcedure.query(({ ctx }) => {
