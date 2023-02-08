@@ -6,6 +6,7 @@ import TagsField from "../../components/Tags/TagsField";
 import LargeViewLayout from "../../components/LargeViewLayout";
 import { FaAngleLeft } from "react-icons/fa";
 import Link from "next/link";
+import Head from "next/head";
 
 export default function ArtById() {
   const router = useRouter();
@@ -16,6 +17,9 @@ export default function ArtById() {
 
   return (
     <>
+      <Head>
+        <title>{`Neznayer art portfolio: ${data?.title}`}</title>
+      </Head>
       <Link
         className="absolute left-5 top-5 cursor-pointer text-3xl text-dark-gray"
         href="/"
