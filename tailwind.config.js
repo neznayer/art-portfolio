@@ -6,6 +6,9 @@ module.exports = {
       backgroundColor: {
         "bg-gray": "#e6e1e1",
       },
+      textColor: {
+        "dark-gray": "rgb(75,73,73)",
+      },
     },
   },
   plugins: [],

@@ -3,6 +3,7 @@ import { useRef, type PropsWithChildren } from "react";
 import { Transition, type TransitionStatus } from "react-transition-group";
 import TagsField from "./Tags/TagsField";
 import { Inter } from "@next/font/google";
+import Footer from "./Footer";
 
 const inter = Inter({ subsets: ["latin"], weight: "200" });
 
@@ -72,6 +73,9 @@ export default function LeftPanel({
         onTagClick={handleAddTagFilter}
         mode="view"
       />
+      <section className="flex flex-1 flex-col items-center justify-end">
+        <Footer />
+      </section>
     </section>
   );
 }
