@@ -20,6 +20,7 @@
   overflow: hidden
 
 .container > h3
+  color: white
   opacity: 0
   position: absolute
   top: 50%
@@ -45,7 +46,6 @@
   opacity: 1
   position: absolute
   transition: opacity 0.2s ease-in-out
-  color: white
 
 .container-hover::after
   opacity: 0
@@ -58,7 +58,7 @@
   top: 100%
   right: 100%
   transform: rotate(45deg)
-  background-color: rgb(187, 221, 217)
+  background-color: rgb(201, 181, 181)
   pointer-events: none
   mix-blend-mode: multiply
 
@@ -83,7 +83,7 @@
   transform: rotate(-45deg)
   background-color: rgb(225, 203, 188)
   pointer-events: none
-  mix-blend-mode: lighten
+  mix-blend-mode: color-dodge
 
 .container-hover:hover::before
   top: 20%
