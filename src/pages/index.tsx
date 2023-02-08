@@ -49,19 +49,19 @@ const Home: NextPage = () => {
           handleAddTagFilter={setSelectedTag}
         />
         <LargeViewLayout>
-          {shownArts &&
-            shownArts.length &&
-            shownArts?.map((art) => {
-              return (
-                <Link key={art.id} href={`/art/${art.id}`} className="block">
-                  <GalleryItem
-                    {...art}
-                    mode="view"
-                    className="h-[150px] w-[150px]"
-                  />
-                </Link>
-              );
-            })}
+          {shownArts?.length !== 0
+            ? shownArts?.map((art) => {
+                return (
+                  <Link key={art.id} href={`/art/${art.id}`} className="block">
+                    <GalleryItem
+                      {...art}
+                      mode="view"
+                      className="h-[150px] w-[150px]"
+                    />
+                  </Link>
+                );
+              })
+            : null}
         </LargeViewLayout>
       </ViewLayout>
     </>

@@ -37,7 +37,7 @@ export default function ArtCard({
           height={artProps.height}
           className="max-h-full w-auto max-w-full object-cover"
         ></Image>
-        <h3>{artProps.title}</h3>
+        <h3>{artProps.title || ""}</h3>
         <FaHeart
           className={`absolute top-2 left-2 cursor-pointer ${
             artProps.highlight && "text-red-400"
