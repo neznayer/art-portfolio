@@ -29,7 +29,7 @@ export default function ArtById() {
       <section className="flex w-full flex-col items-center justify-center">
         {isFetched && (
           <LargeViewLayout className=" bg-white" mode="large">
-            <GalleryItem mode="large_view" {...data} className="h-[500px]" />
+            <GalleryItem mode="large_view" {...data} className="h-[60vh]" />
 
             <dl>
               <dt>

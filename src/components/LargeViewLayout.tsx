@@ -25,7 +25,7 @@ export default function LargeViewLayout({
         <div
           className={`flex flex-wrap justify-center gap-4 px-5 ${
             mode ? "flex-col" : "flex-row"
-          }`}
+          } pb-10`}
         >
           {children}
         </div>
