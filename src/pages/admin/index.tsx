@@ -9,7 +9,6 @@ import NextImage from "next/image";
 import { api } from "../../utils/api";
 import { useDropzone } from "react-dropzone";
 import { FaGoogle, FaTimes, FaUpload } from "react-icons/fa";
-import Gallery from "../../components/Gallery/Gallery";
 import GalleryItem from "../../components/Gallery/GalleryItem";
 import Button from "../../components/Button";
 import TextInput from "../../components/TextInput";
@@ -162,11 +161,10 @@ export default function AdminPage() {
               admin access. For now, non-admins can only view all, highlighted
               and not highlighted arts.
             </p>
-            <Gallery>
-              {allArts?.map((art) => {
-                return <GalleryItem mode="view" {...art} key={art.id} />;
-              })}
-            </Gallery>
+
+            {allArts?.map((art) => {
+              return <GalleryItem mode="view" {...art} key={art.id} />;
+            })}
           </div>
         </section>
       );
@@ -242,19 +240,18 @@ export default function AdminPage() {
                 )}
               </div>
             </form>
-            <Gallery>
-              {allArts?.map((art) => {
-                return (
-                  <GalleryItem
-                    onDelete={onDelete}
-                    onHighlight={onAddHighLight}
-                    mode="control"
-                    {...art}
-                    key={art.id}
-                  />
-                );
-              })}
-            </Gallery>
+
+            {allArts?.map((art) => {
+              return (
+                <GalleryItem
+                  onDelete={onDelete}
+                  onHighlight={onAddHighLight}
+                  mode="control"
+                  {...art}
+                  key={art.id}
+                />
+              );
+            })}
           </div>
         </section>
       );
