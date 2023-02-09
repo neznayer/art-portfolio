@@ -64,7 +64,9 @@ export default function ArtCard({
         src={artProps.link || ""}
         width={artProps.width}
         height={artProps.height}
-        className={`h-full w-full object-cover`}
+        className={`${
+          mode === "large_view" ? " h-full w-auto " : "h-auto w-full"
+        } object-cover`}
       ></Image>
     </div>
   );

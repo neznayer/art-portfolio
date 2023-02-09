@@ -2,12 +2,11 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import { useEffect, useState, useContext } from "react";
 import { type IArt } from "../types/art";
-import GalleryItem from "../components/Gallery/GalleryItem";
-import Link from "next/link";
 import ViewLayout from "../components/ViewLayout";
 import LeftPanel from "../components/LeftPanel";
 import { ArtContext, TagsContext } from "../utils/Context";
 import LargeViewLayout from "../components/LargeViewLayout";
+import Gallery from "../components/Gallery/Gallery";
 
 const Home: NextPage = () => {
   const [selectedTag, setSelectedTag] = useState<string>("");
@@ -49,19 +48,7 @@ const Home: NextPage = () => {
           handleAddTagFilter={setSelectedTag}
         />
         <LargeViewLayout>
-          {shownArts?.length !== 0
-            ? shownArts?.map((art) => {
-                return (
-                  <Link key={art.id} href={`/art/${art.id}`} className="block">
-                    <GalleryItem
-                      {...art}
-                      mode="view"
-                      className="h-[150px] w-[150px]"
-                    />
-                  </Link>
-                );
-              })
-            : null}
+          <Gallery arts={shownArts} />
         </LargeViewLayout>
       </ViewLayout>
     </>
