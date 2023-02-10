@@ -47,7 +47,8 @@ export default function LeftPanel({
           width={400}
           height={400}
           alt="Neznayer logo"
-          className="h-auto w-[150px] rounded-full max-smartphone:w-[32px] "
+          className="h-auto w-[150px] rounded-full max-smartphone:w-[32px]"
+          sizes="(max-width: 475px) 32px, 200px"
         />
         <h1
           className={`${inter.className} ml-5 hidden text-lg max-smartphone:block`}
