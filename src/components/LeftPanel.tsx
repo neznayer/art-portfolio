@@ -39,7 +39,7 @@ export default function LeftPanel({
 
   return (
     <section
-      className={` flex w-[200px] flex-col gap-5 text-sm transition-all ${inter.className}`}
+      className={` flex w-[200px] flex-col gap-5 text-sm transition-all max-smartphone:items-center ${inter.className}`}
     >
       <header className="mt-10 flex min-h-min items-center justify-center">
         <Image
