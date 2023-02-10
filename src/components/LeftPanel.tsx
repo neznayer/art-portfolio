@@ -39,23 +39,28 @@ export default function LeftPanel({
 
   return (
     <section
-      className={` flex w-[200px] flex-col gap-5 text-sm transition-all max-smartphone:items-center ${inter.className}`}
+      className={` flex flex-col gap-5 text-sm transition-all max-smartphone:w-full max-smartphone:items-center smartphone:w-[200px] ${inter.className}`}
     >
-      <header className="mt-10 flex min-h-min items-center justify-center">
+      <header className="flex min-h-min items-center max-smartphone:mt-3 max-smartphone:w-full max-smartphone:pl-5 smartphone:mt-10 smartphone:justify-center">
         <Image
           src="/assets/images/Logo.png"
           width={400}
           height={400}
           alt="Neznayer logo"
-          className="h-auto w-[150px] rounded-full"
+          className="h-auto w-[150px] rounded-full max-smartphone:w-[32px] "
         />
+        <h1
+          className={`${inter.className} ml-5 hidden text-lg max-smartphone:block`}
+        >
+          Neznayer art
+        </h1>
       </header>
       <Transition nodeRef={nodeRef} in={!!selectedTag} timeout={500}>
         {(state) => (
           <div
             style={{ ...defaultStyle, ...transitionStyles[state] }}
             ref={nodeRef}
-            className="flex flex-col gap-2"
+            className="flex flex-col gap-2 max-smartphone:hidden"
           >
             <h3>Selected tag</h3>
             <TagsField
@@ -67,7 +72,6 @@ export default function LeftPanel({
         )}
       </Transition>
 
-      <h3>Tags</h3>
       <TagsField
         tags={tags || []}
         onTagClick={handleAddTagFilter}

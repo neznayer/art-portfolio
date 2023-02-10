@@ -40,6 +40,7 @@ const Home: NextPage = () => {
           content="Anton Nezanyer's artworks portfolio"
         />
       </Head>
+
       <ViewLayout>
         <LeftPanel
           tags={allTags || []}
