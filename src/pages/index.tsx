@@ -48,7 +48,7 @@ const Home: NextPage = () => {
           handleAddTagFilter={setSelectedTag}
         />
         <LargeViewLayout>
-          <Gallery arts={shownArts} />
+          <Gallery arts={shownArts} mode="view" />
         </LargeViewLayout>
       </ViewLayout>
     </>
