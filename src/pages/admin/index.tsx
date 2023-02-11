@@ -14,6 +14,7 @@ import Button from "../../components/Button";
 import TextInput from "../../components/TextInput";
 import Gallery from "../../components/Gallery/Gallery";
 import Spinner from "../../components/Spinner";
+import { title } from "process";
 
 interface IgetPutUrlResponse {
   putUrl: string;
@@ -66,13 +67,11 @@ export default function AdminPage() {
     const description = formData.get("description") as string;
     const highlight = !!formData.get("highlight");
 
-    if (!file) {
-      return null;
-    }
-
-    const fileType = encodeURIComponent(file.type);
-
     try {
+      if (!file) {
+        throw new Error("No file was selected");
+      }
+      const fileType = encodeURIComponent(file.type);
       const getPutUrlResponse = await fetch(
         `/api/upload-art?fileType=${fileType}`
       );
@@ -146,6 +145,8 @@ export default function AdminPage() {
     });
   }
 
+  const uploadDisabled = uploading || !file || !title;
+
   const signOutBtn = <Button onClick={() => signOut()}>SignOut</Button>;
   const signinBtn = (
     <Button onClick={() => signIn("google")}>
@@ -175,83 +176,91 @@ export default function AdminPage() {
       );
     } else if (sessionData?.user.role === "admin") {
       return (
-        <section className="flex w-full justify-center">
-          <div className="flex max-w-xl flex-col gap-3">
+        <section className="flex w-full justify-center px-5">
+          <div className="flex flex-col gap-3">
             {signOutBtn}
             <h1 className=" text-lg">Welcome, {sessionData.user.name}! </h1>
-            <form onSubmit={uploadToS3} className=" h-30 flex w-[600px] gap-3">
-              <div className="flex w-[300px] flex-col gap-2">
-                <TextInput placeholder="Title" name="title" />
-                <TextInput placeholder="Description" name="description" />
-                <label>
-                  <input
-                    type="checkbox"
-                    name="highlight"
-                    id="highlight"
-                    className="mr-2"
-                  />
-                  Highlight in main gallery
-                </label>
-                <div>
-                  <TextInput
-                    placeholder="Add tag"
-                    name="tag"
-                    onChange={handleTagChange}
-                    onKeyDown={handleAddTag}
-                    value={inputTag}
-                  />
+            <form
+              onSubmit={uploadToS3}
+              className="h-30 flex flex-col items-center gap-3"
+            >
+              <div className=" flex flex-row gap-2 max-smartphone:flex-col">
+                <div className="flex flex-col gap-2 smartphone:w-[300px]">
+                  <TextInput placeholder="Title" name="title" />
+                  <TextInput placeholder="Description" name="description" />
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="highlight"
+                      id="highlight"
+                      className="mr-2"
+                    />
+                    Highlight in main gallery
+                  </label>
+                  <div className="smartphone:w-[300px]">
+                    <TextInput
+                      placeholder="Add tag"
+                      name="tag"
+                      onChange={handleTagChange}
+                      onKeyDown={handleAddTag}
+                      value={inputTag}
+                      className="w-full"
+                    />
 
-                  <ul className="flex flex-row flex-wrap gap-2">
-                    {tags.map((tag) => (
-                      <li
-                        key={tag}
-                        className="flex items-center gap-1 rounded border-2 border-slate-100 bg-slate-50 px-1 text-slate-500"
-                      >
-                        <span>{tag}</span>
-                        <FaTimes
-                          className="cursor-pointer text-slate-500"
-                          onClick={() => handleDeleteTag(tag)}
-                        />
-                      </li>
-                    ))}
-                  </ul>
+                    <ul className="flex flex-row flex-wrap gap-2">
+                      {tags.map((tag) => (
+                        <li
+                          key={tag}
+                          className="flex items-center gap-1 rounded border-2 border-slate-100 bg-slate-50 px-1 text-slate-500"
+                        >
+                          <span>{tag}</span>
+                          <FaTimes
+                            className="cursor-pointer text-slate-500"
+                            onClick={() => handleDeleteTag(tag)}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
-                <button
-                  type="submit"
-                  disabled={uploading}
-                  className={`relative rounded border-2 ${
-                    uploading ? " border-slate-500" : "border-orange-300"
-                  }`}
+                <div
+                  {...getRootProps()}
+                  className="flex h-full flex-1 flex-col items-center justify-center rounded-md border-2 border-slate-300 bg-slate-200 p-2 text-slate-400"
                 >
-                  <span>Upload</span>
-                  {uploading && (
-                    <span className=" absolute right-2 top-1/2 -translate-y-1/2">
-                      <Spinner className="border-slate-500" />
-                    </span>
+                  <input {...getInputProps()} />
+                  {previewImg && imgSize && (
+                    <NextImage
+                      src={previewImg}
+                      width={imgSize.width}
+                      height={imgSize.height}
+                      alt="preview"
+                      className=" h-auto max-h-full w-auto max-w-full"
+                    ></NextImage>
                   )}
-                </button>
+                  {!previewImg && (
+                    <>
+                      <FaUpload />
+                      <p>
+                        Drag n drop some files here, or click to select files
+                      </p>
+                    </>
+                  )}
+                </div>
               </div>
-              <div
-                {...getRootProps()}
-                className="flex h-[100px] flex-1 flex-col items-center justify-center rounded-md border-2 border-slate-300 bg-slate-200 p-2 text-slate-400"
+              <button
+                type="submit"
+                disabled={uploadDisabled}
+                className={`relative h-8 w-[10rem] rounded border-2 ${
+                  uploadDisabled ? " border-slate-500" : "border-orange-300"
+                }`}
               >
-                <input {...getInputProps()} />
-                {previewImg && imgSize && (
-                  <NextImage
-                    src={previewImg}
-                    width={imgSize.width}
-                    height={imgSize.height}
-                    alt="preview"
-                    className=" h-auto max-h-full w-auto max-w-full"
-                  ></NextImage>
+                <span>Upload</span>
+                {uploading && (
+                  <span className=" absolute right-2 top-1/2 -translate-y-1/2">
+                    <Spinner className="border-slate-500" />
+                  </span>
                 )}
-                {!previewImg && (
-                  <>
-                    <FaUpload />
-                    <p>Drag n drop some files here, or click to select files</p>
-                  </>
-                )}
-              </div>
+              </button>
             </form>
 
             <Gallery
