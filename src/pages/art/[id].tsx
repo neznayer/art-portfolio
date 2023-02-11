@@ -7,6 +7,9 @@ import LargeViewLayout from "../../components/LargeViewLayout";
 import { FaAngleLeft } from "react-icons/fa";
 import Link from "next/link";
 import Head from "next/head";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { artRouter } from "../../server/api/routers/art";
+import { createInnerTRPCContext } from "../../server/api/trpc";
 
 export default function ArtById() {
   const router = useRouter();
@@ -50,4 +53,19 @@ export default function ArtById() {
       </section>
     </>
   );
+}
+
+export async function getStaticPaths() {
+  const ssg = createProxySSGHelpers({
+    router: artRouter,
+    ctx: createInnerTRPCContext({ session: null }),
+  });
+
+  const allArts = await ssg.allArts.fetch();
+
+  const paths = allArts.map((art) => ({
+    params: { id: art.id },
+  }));
+
+  return { paths, fallback: false };
 }
