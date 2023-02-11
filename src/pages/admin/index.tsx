@@ -3,6 +3,7 @@ import {
   useState,
   type ChangeEvent,
   useCallback,
+  useReducer,
 } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import NextImage from "next/image";
@@ -14,7 +15,29 @@ import Button from "../../components/Button";
 import TextInput from "../../components/TextInput";
 import Gallery from "../../components/Gallery/Gallery";
 import Spinner from "../../components/Spinner";
-import { title } from "process";
+
+enum EInputArtActions {
+  SET_FILE = "SET_FILE",
+  SET_DESCRIPTION = "SET_DESCRIPTION",
+  SET_TITLE = "SET_TITLE",
+  SET_HIGHLIGHTED = "SET_HIGHLIGHTED",
+  ADD_TAG = "ADD_TAG",
+  REMOVE_TAG = "REMOVE_TAG",
+  SET_TAGS = "SET_TAGS",
+}
+
+interface IInputArtState {
+  title: string;
+  tags: string[];
+  file: File | null;
+  description: string;
+  highlighted: boolean;
+}
+
+interface IArtAction {
+  type: `${EInputArtActions}`;
+  payload?: IInputArtState[keyof IInputArtState];
+}
 
 interface IgetPutUrlResponse {
   putUrl: string;
@@ -22,18 +45,55 @@ interface IgetPutUrlResponse {
   key: string;
 }
 
+function artReducer(state: IInputArtState, action: IArtAction): IInputArtState {
+  const { type, payload } = action;
+  switch (type) {
+    case EInputArtActions.SET_TITLE:
+      return { ...state, title: payload as string };
+
+    case EInputArtActions.SET_DESCRIPTION:
+      return { ...state, description: payload as string };
+
+    case EInputArtActions.SET_FILE:
+      return { ...state, file: payload as File };
+
+    case EInputArtActions.SET_HIGHLIGHTED:
+      return { ...state, highlighted: payload as boolean };
+
+    case EInputArtActions.ADD_TAG:
+      return {
+        ...state,
+        tags: [...new Set(state.tags.concat(payload as string))],
+      };
+
+    case EInputArtActions.REMOVE_TAG:
+      return { ...state, tags: state.tags.filter((tag) => tag !== payload) };
+    case EInputArtActions.SET_TAGS:
+      return { ...state, tags: payload as string[] };
+
+    default:
+      return state;
+  }
+}
+
 export default function AdminPage() {
   const { data: sessionData } = useSession();
-  const [inputTag, setInputTag] = useState<string>("");
   const mutation = api.art.addNewArt.useMutation().mutateAsync;
   const deleteMutation = api.art.remove.useMutation().mutateAsync;
   const highlightMutation = api.art.addHighLight.useMutation().mutateAsync;
   const { data: allArts } = api.art.allArts.useQuery();
+  const [inputTag, setInputTag] = useState<string>("");
   const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
-  const [tags, setTags] = useState<string[]>([]);
-  const [file, setFile] = useState<File>();
   const [previewImg, setPreviewImg] = useState<string | null | undefined>();
   const [uploading, setUploading] = useState<boolean>(false);
+
+  const [inputArt, dispatch] = useReducer(artReducer, {
+    title: "",
+    tags: [],
+    file: null,
+    description: "",
+    highlighted: false,
+  });
 
   const utils = api.useContext();
 
@@ -49,7 +109,7 @@ export default function AdminPage() {
         setPreviewImg(e.target?.result as string);
       };
       reader.readAsDataURL(upFile);
-      setFile(upFile);
+      dispatch({ type: "SET_FILE", payload: upFile });
     });
   }, []);
 
@@ -62,16 +122,12 @@ export default function AdminPage() {
   async function uploadToS3(e: ChangeEvent<HTMLFormElement>) {
     setUploading(true);
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const title = formData.get("title")?.toString() as string;
-    const description = formData.get("description") as string;
-    const highlight = !!formData.get("highlight");
 
     try {
-      if (!file) {
+      if (!inputArt.file) {
         throw new Error("No file was selected");
       }
-      const fileType = encodeURIComponent(file.type);
+      const fileType = encodeURIComponent(inputArt.file.type);
       const getPutUrlResponse = await fetch(
         `/api/upload-art?fileType=${fileType}`
       );
@@ -79,23 +135,23 @@ export default function AdminPage() {
       const { putUrl, getUrl, key } =
         (await getPutUrlResponse.json()) as IgetPutUrlResponse;
 
-      await fetch(putUrl, { method: "PUT", body: file });
+      await fetch(putUrl, { method: "PUT", body: inputArt.file });
 
       await mutation({
-        description,
-        title,
+        description: inputArt.description,
+        title: inputArt.title,
         link: getUrl,
-        tags,
+        tags: inputArt.tags,
         width: imgSize.width,
         height: imgSize.height,
-        highlight,
+        highlight: inputArt.highlighted,
         key,
       });
 
       await utils.art.allArts.invalidate();
 
       setInputTag("");
-      setTags([]);
+      dispatch({ type: "SET_TAGS", payload: [] });
     } catch (error) {
       console.error("Some error while uploading to s3", error);
     } finally {
@@ -131,21 +187,17 @@ export default function AdminPage() {
     if (e.key === "Enter") {
       e.preventDefault();
       if (inputTag) {
-        setTags((prev) => {
-          return [...new Set([...prev, inputTag])];
-        });
+        dispatch({ type: "ADD_TAG", payload: inputTag });
         setInputTag("");
       }
     }
   }
 
   function handleDeleteTag(tag: string) {
-    setTags((prev) => {
-      return prev.filter((prevTag) => tag !== prevTag);
-    });
+    dispatch({ type: "REMOVE_TAG", payload: tag });
   }
 
-  const uploadDisabled = uploading || !file || !title;
+  const uploadDisabled = uploading || !inputArt.file || !inputArt.title;
 
   const signOutBtn = <Button onClick={() => signOut()}>SignOut</Button>;
   const signinBtn = (
@@ -186,14 +238,35 @@ export default function AdminPage() {
             >
               <div className=" flex flex-row gap-2 max-smartphone:flex-col">
                 <div className="flex flex-col gap-2 smartphone:w-[300px]">
-                  <TextInput placeholder="Title" name="title" />
-                  <TextInput placeholder="Description" name="description" />
+                  <TextInput
+                    onChange={(e) =>
+                      dispatch({ type: "SET_TITLE", payload: e.target.value })
+                    }
+                    placeholder="Title"
+                    name="title"
+                  />
+                  <TextInput
+                    onChange={(e) =>
+                      dispatch({
+                        type: "SET_DESCRIPTION",
+                        payload: e.target.value,
+                      })
+                    }
+                    placeholder="Description"
+                    name="description"
+                  />
                   <label>
                     <input
                       type="checkbox"
                       name="highlight"
                       id="highlight"
                       className="mr-2"
+                      onChange={(e) =>
+                        dispatch({
+                          type: "SET_HIGHLIGHTED",
+                          payload: e.target.checked,
+                        })
+                      }
                     />
                     Highlight in main gallery
                   </label>
@@ -208,7 +281,7 @@ export default function AdminPage() {
                     />
 
                     <ul className="flex flex-row flex-wrap gap-2">
-                      {tags.map((tag) => (
+                      {inputArt.tags.map((tag) => (
                         <li
                           key={tag}
                           className="flex items-center gap-1 rounded border-2 border-slate-100 bg-slate-50 px-1 text-slate-500"
@@ -225,7 +298,7 @@ export default function AdminPage() {
                 </div>
                 <div
                   {...getRootProps()}
-                  className="flex h-full flex-1 flex-col items-center justify-center rounded-md border-2 border-slate-300 bg-slate-200 p-2 text-slate-400"
+                  className="h-30 flex flex-1 flex-col items-center justify-center rounded-md border-2 border-slate-300 bg-slate-200 p-2 text-slate-400"
                 >
                   <input {...getInputProps()} />
                   {previewImg && imgSize && (
@@ -234,7 +307,7 @@ export default function AdminPage() {
                       width={imgSize.width}
                       height={imgSize.height}
                       alt="preview"
-                      className=" h-auto max-h-full w-auto max-w-full"
+                      className="h-30  object-contain"
                     ></NextImage>
                   )}
                   {!previewImg && (
