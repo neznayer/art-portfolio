@@ -1,8 +1,8 @@
 import Tag from "./Tag";
 
-interface ITagsFieldProps {
+export interface ITagsFieldProps {
   tags: string[];
-  mode: "control" | "view";
+  mode: "control" | "view" | "largeView";
   onTagClick: (tag: string) => void;
   className?: string;
 }
@@ -15,7 +15,9 @@ export default function TagsField({
 }: ITagsFieldProps) {
   return (
     <div
-      className={`hidden flex-row flex-wrap gap-2 smartphone:flex ${className}`}
+      className={`${
+        mode === "view" ? "hidden smartphone:flex" : "flex"
+      } flex-row flex-wrap gap-2 smartphone:flex ${className}`}
     >
       <h3>Tags</h3>
       {tags.map((tag) => {

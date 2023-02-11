@@ -1,8 +1,9 @@
 import { FaTimes } from "react-icons/fa";
+import { type ITagsFieldProps } from "./TagsField";
 
 interface ITagProps {
   tag: string;
-  mode: "view" | "control";
+  mode: ITagsFieldProps["mode"];
   onClick?: () => void;
   onDelete?: () => void;
 }
