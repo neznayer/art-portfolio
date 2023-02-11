@@ -84,7 +84,7 @@ export async function getStaticProps() {
       allArts: parsedArts,
       allTags,
     },
-    revalidate: 30,
+    revalidate: 20,
   };
 }
 
