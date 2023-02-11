@@ -13,10 +13,11 @@ const inputSchema = z.object({
 });
 
 export const artRouter = createTRPCRouter({
-  allArts: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.art
+  allArts: publicProcedure.query(async ({ ctx }) => {
+    const data = await ctx.prisma.art
       .findMany()
       .then((res) => res.sort((a, b) => +a.createdAt - +b.createdAt));
+    return data;
   }),
   highlightedArts: publicProcedure
     .input(z.object({ tag: z.string().optional() }).optional())
@@ -54,8 +55,8 @@ export const artRouter = createTRPCRouter({
       }
       return ctx.prisma.art.findFirst({ where: { id: input.id } });
     }),
-  allTags: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.art
+  allTags: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.art
       .findMany()
       .then((found) => [...new Set(found.flatMap((f) => f.tags))]);
   }),

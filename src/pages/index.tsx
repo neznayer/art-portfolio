@@ -1,19 +1,23 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import { type IArt } from "../types/art";
 import ViewLayout from "../components/ViewLayout";
 import LeftPanel from "../components/LeftPanel";
 import { ArtContext, TagsContext } from "../utils/Context";
+
 import LargeViewLayout from "../components/LargeViewLayout";
 import Gallery from "../components/Gallery/Gallery";
+import { createInnerTRPCContext } from "../server/api/trpc";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
+import { artRouter } from "../server/api/routers/art";
+import { type Art } from "@prisma/client";
 
-const Home: NextPage = () => {
+const Home: NextPage<{ allArts: Art[]; allTags: string[] }> = ({
+  allArts,
+  allTags,
+}) => {
   const [selectedTag, setSelectedTag] = useState<string>("");
-
-  const allArts = useContext(ArtContext);
-  const allTags = useContext(TagsContext);
-
   const [shownArts, setShownArts] = useState<IArt[]>([]);
 
   function handleRemoveTagFilter() {
@@ -41,19 +45,47 @@ const Home: NextPage = () => {
         />
       </Head>
 
-      <ViewLayout>
-        <LeftPanel
-          tags={allTags || []}
-          selectedTag={selectedTag}
-          handleRemoveTagFilter={handleRemoveTagFilter}
-          handleAddTagFilter={setSelectedTag}
-        />
-        <LargeViewLayout>
-          <Gallery arts={shownArts} mode="view" />
-        </LargeViewLayout>
-      </ViewLayout>
+      <ArtContext.Provider value={allArts}>
+        <TagsContext.Provider value={allTags}>
+          <ViewLayout>
+            <LeftPanel
+              tags={allTags || []}
+              selectedTag={selectedTag}
+              handleRemoveTagFilter={handleRemoveTagFilter}
+              handleAddTagFilter={setSelectedTag}
+            />
+            <LargeViewLayout>
+              <Gallery arts={shownArts} mode="view" />
+            </LargeViewLayout>
+          </ViewLayout>
+        </TagsContext.Provider>
+      </ArtContext.Provider>
     </>
   );
 };
+
+export async function getStaticProps() {
+  const ssg = createProxySSGHelpers({
+    router: artRouter,
+    ctx: createInnerTRPCContext({ session: null }),
+  });
+
+  const allArts = await ssg.allArts.fetch();
+  const allTags = await ssg.allTags.fetch();
+
+  const parsedArts = allArts.map((art) => ({
+    ...art,
+    createdAt: art.createdAt.valueOf(),
+    updatedAt: art.updatedAt.valueOf(),
+  }));
+
+  return {
+    props: {
+      allArts: parsedArts,
+      allTags,
+    },
+    revalidate: 1,
+  };
+}
 
 export default Home;

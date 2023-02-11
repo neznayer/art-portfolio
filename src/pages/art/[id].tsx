@@ -1,5 +1,4 @@
-import { api } from "../../utils/api";
-
+import superjson from "superjson";
 import GalleryItem from "../../components/Gallery/GalleryItem";
 import TagsField from "../../components/Tags/TagsField";
 import LargeViewLayout from "../../components/LargeViewLayout";
@@ -9,14 +8,15 @@ import Head from "next/head";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { artRouter } from "../../server/api/routers/art";
 import { createInnerTRPCContext } from "../../server/api/trpc";
+import { type Art } from "@prisma/client";
 
-export default function ArtById({ id }: { id: string }) {
-  const { data, isFetched } = api.art.getById.useQuery({ id });
+export default function ArtById({ art }: { art: Art }) {
+  //const { data, isFetched } = api.art.getById.useQuery({ id });
 
   return (
     <>
       <Head>
-        <title>{`Neznayer art portfolio: ${data?.title}`}</title>
+        <title>{`Neznayer art portfolio: ${art?.title}`}</title>
       </Head>
       <Link
         className="absolute left-5 top-5 cursor-pointer text-3xl text-dark-gray"
@@ -25,26 +25,24 @@ export default function ArtById({ id }: { id: string }) {
         <FaAngleLeft />
       </Link>
       <section className="flex w-full flex-col items-center justify-center">
-        {isFetched && (
-          <LargeViewLayout className=" bg-white" mode="large">
-            <GalleryItem mode="large_view" {...data} className="h-[60vh]" />
+        <LargeViewLayout className=" bg-white" mode="large">
+          <GalleryItem mode="large_view" {...art} className="h-[60vh]" />
 
-            <dl>
-              <dt>
-                <h2 className="text-left text-lg">{data?.title}</h2>
-              </dt>
-              <dd>
-                <h3>{data?.description}</h3>
-              </dd>
-            </dl>
+          <dl>
+            <dt>
+              <h2 className="text-left text-lg">{art?.title}</h2>
+            </dt>
+            <dd>
+              <h3>{art?.description}</h3>
+            </dd>
+          </dl>
 
-            <TagsField
-              onTagClick={() => null}
-              mode="view"
-              tags={data?.tags || []}
-            />
-          </LargeViewLayout>
-        )}
+          <TagsField
+            onTagClick={() => null}
+            mode="view"
+            tags={art?.tags || []}
+          />
+        </LargeViewLayout>
       </section>
     </>
   );
@@ -65,8 +63,24 @@ export async function getStaticPaths() {
   return { paths, fallback: false };
 }
 
-export async function getStaticProps() {
+export async function getStaticProps({ params }: { params: { id: string } }) {
+  const ssg = createProxySSGHelpers({
+    router: artRouter,
+    ctx: createInnerTRPCContext({ session: null }),
+    transformer: superjson,
+  });
+
+  const { id } = params;
+
+  const art = await ssg.getById.fetch({ id });
+
   return {
-    props: { id: {} },
+    props: {
+      art: {
+        ...art,
+        createdAt: art?.createdAt.valueOf(),
+        updatedAt: art?.updatedAt.valueOf(),
+      },
+    },
   };
 }
