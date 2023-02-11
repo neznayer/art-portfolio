@@ -40,6 +40,7 @@ const Home: NextPage = () => {
           content="Anton Nezanyer's artworks portfolio"
         />
       </Head>
+
       <ViewLayout>
         <LeftPanel
           tags={allTags || []}
@@ -48,7 +49,7 @@ const Home: NextPage = () => {
           handleAddTagFilter={setSelectedTag}
         />
         <LargeViewLayout>
-          <Gallery arts={shownArts} />
+          <Gallery arts={shownArts} mode="view" />
         </LargeViewLayout>
       </ViewLayout>
     </>

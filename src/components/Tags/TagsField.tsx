@@ -14,7 +14,10 @@ export default function TagsField({
   className,
 }: ITagsFieldProps) {
   return (
-    <div className={`flex flex-row flex-wrap gap-2 ${className}`}>
+    <div
+      className={`hidden flex-row flex-wrap gap-2 smartphone:flex ${className}`}
+    >
+      <h3>Tags</h3>
       {tags.map((tag) => {
         return (
           <Tag

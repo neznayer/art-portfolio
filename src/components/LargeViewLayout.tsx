@@ -14,16 +14,16 @@ export default function LargeViewLayout({
 }: ILargeViewLayoutProps) {
   return (
     <section
-      className={`flex h-[100vh] flex-1 flex-col items-start overflow-auto bg-bg-gray ${className}`}
+      className={`flex h-[100vh] flex-1 flex-col items-start overflow-auto bg-bg-gray max-smartphone:w-full ${className}`}
     >
       <div className="flex w-full flex-col gap-2">
         <header
-          className={`${inter.className} relative flex h-20 items-center justify-center text-xl`}
+          className={`${inter.className} relative flex h-20 items-center justify-center text-xl max-smartphone:hidden`}
         >
-          <h1 className="block text-center text-dark-gray">Neznayer art</h1>
+          <h1 className=" block text-center text-dark-gray ">Neznayer art</h1>
         </header>
         <div
-          className={`flex flex-wrap justify-center gap-4 px-5 ${
+          className={` flex flex-wrap justify-center gap-4 px-5 max-smartphone:mt-5 ${
             mode ? "flex-col" : "flex-row"
           } pb-10`}
         >

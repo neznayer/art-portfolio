@@ -33,9 +33,8 @@ export default function ArtCard({
         <Image
           alt={artProps.title || ""}
           src={artProps.link || ""}
-          width={artProps.width}
-          height={artProps.height}
-          className="max-h-full w-auto max-w-full object-cover"
+          className="max-h-full w-auto max-w-full object-fill"
+          sizes="(max-width: 400px) 80vw, (max-width: 600px) 50vw, 33vw"
         ></Image>
         <h3>{artProps.title || ""}</h3>
         <FaHeart
@@ -50,23 +49,34 @@ export default function ArtCard({
         />
       </div>
     );
+  } else if (mode === "view") {
+    return (
+      <div
+        className={`${styles.container} ${className} ${styles["container-hover"]} relative`}
+      >
+        <h3 className=" z-10">{artProps.title}</h3>
+        <Image
+          alt={artProps.title || ""}
+          src={artProps.link || ""}
+          width={artProps.width}
+          height={artProps.height}
+          className={`h-auto w-full`}
+          sizes="(max-width: 475px) 90vw, (max-width: 640px) 40vw, (max-width: 750px) 30vw, 25vw"
+        ></Image>
+      </div>
+    );
   }
 
   return (
-    <div
-      className={`${styles.container} ${className} ${
-        mode === "large_view" ? "" : styles["container-hover"]
-      }`}
-    >
+    <div className={`${styles.container} ${className} relative`}>
       <h3 className=" z-10">{artProps.title}</h3>
       <Image
         alt={artProps.title || ""}
         src={artProps.link || ""}
         width={artProps.width}
         height={artProps.height}
-        className={`${
-          mode === "large_view" ? " h-full w-auto " : "h-auto w-full"
-        } object-cover`}
+        className={` h-full w-auto object-cover`}
+        sizes="(max-width: 640px) 100wv, 50wv"
       ></Image>
     </div>
   );
