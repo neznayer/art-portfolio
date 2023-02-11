@@ -70,8 +70,8 @@ export async function getStaticProps() {
     ctx: createInnerTRPCContext({ session: null }),
   });
 
-  const allArts = await ssg.allArts.fetch();
-  const allTags = await ssg.allTags.fetch();
+  const allArts = await ssg.highlightedArts.fetch();
+  const allTags = allArts.flatMap((art) => art.tags);
 
   const parsedArts = allArts.map((art) => ({
     ...art,
