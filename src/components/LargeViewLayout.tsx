@@ -14,7 +14,7 @@ export default function LargeViewLayout({
 }: ILargeViewLayoutProps) {
   return (
     <section
-      className={`flex h-[100vh] flex-1 flex-col items-start overflow-auto bg-bg-gray max-smartphone:w-full ${className}`}
+      className={`flex h-full flex-1 flex-col items-start overflow-auto bg-bg-gray max-smartphone:w-full ${className}`}
     >
       <div className="flex w-full flex-col gap-2">
         <header
