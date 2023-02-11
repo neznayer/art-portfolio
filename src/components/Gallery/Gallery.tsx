@@ -9,7 +9,7 @@ interface IGalleryProps {
 
 export default function Gallery({ arts, mode }: IGalleryProps) {
   return (
-    <section className="gap-[2vw] min-[750px]:columns-2  desktop:columns-3">
+    <section className=" w-full gap-[2vw] max-tabletBig:columns-1 tabletBig:columns-2 desktop:columns-3 ">
       {arts.map((art) => {
         return (
           <Link key={art.id} href={`/art/${art.id}`} className="block">

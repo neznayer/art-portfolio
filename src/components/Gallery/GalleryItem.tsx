@@ -61,7 +61,7 @@ export default function ArtCard({
           width={artProps.width}
           height={artProps.height}
           className={`h-auto w-full`}
-          sizes="(max-width: 480px) 100wv, 50wv"
+          sizes="(max-width: 475px) 90vw, (max-width: 640px) 40vw, (max-width: 750px) 30vw, 25vw"
         ></Image>
       </div>
     );
