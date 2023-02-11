@@ -12,6 +12,8 @@ import { FaGoogle, FaTimes, FaUpload } from "react-icons/fa";
 import GalleryItem from "../../components/Gallery/GalleryItem";
 import Button from "../../components/Button";
 import TextInput from "../../components/TextInput";
+import Gallery from "../../components/Gallery/Gallery";
+import Spinner from "../../components/Spinner";
 
 interface IgetPutUrlResponse {
   putUrl: string;
@@ -30,6 +32,7 @@ export default function AdminPage() {
   const [tags, setTags] = useState<string[]>([]);
   const [file, setFile] = useState<File>();
   const [previewImg, setPreviewImg] = useState<string | null | undefined>();
+  const [uploading, setUploading] = useState<boolean>(false);
 
   const utils = api.useContext();
 
@@ -56,6 +59,7 @@ export default function AdminPage() {
   });
 
   async function uploadToS3(e: ChangeEvent<HTMLFormElement>) {
+    setUploading(true);
     e.preventDefault();
     const formData = new FormData(e.target);
     const title = formData.get("title")?.toString() as string;
@@ -95,6 +99,8 @@ export default function AdminPage() {
       setTags([]);
     } catch (error) {
       console.error("Some error while uploading to s3", error);
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -110,7 +116,6 @@ export default function AdminPage() {
   }
 
   async function onAddHighLight(id: string, highlight: boolean) {
-    console.log(id, highlight);
     try {
       await highlightMutation({ id, highlight });
     } catch (error) {
@@ -213,9 +218,17 @@ export default function AdminPage() {
                 </div>
                 <button
                   type="submit"
-                  className=" rounded border-2 border-orange-300"
+                  disabled={uploading}
+                  className={`relative rounded border-2 ${
+                    uploading ? " border-slate-500" : "border-orange-300"
+                  }`}
                 >
-                  Upload
+                  <span>Upload</span>
+                  {uploading && (
+                    <span className=" absolute right-2 top-1/2 -translate-y-1/2">
+                      <Spinner className="border-slate-500" />
+                    </span>
+                  )}
                 </button>
               </div>
               <div
@@ -241,17 +254,12 @@ export default function AdminPage() {
               </div>
             </form>
 
-            {allArts?.map((art) => {
-              return (
-                <GalleryItem
-                  onDelete={onDelete}
-                  onHighlight={onAddHighLight}
-                  mode="control"
-                  {...art}
-                  key={art.id}
-                />
-              );
-            })}
+            <Gallery
+              arts={allArts || []}
+              mode="control"
+              onAddHighlight={onAddHighLight}
+              onDelete={onDelete}
+            />
           </div>
         </section>
       );

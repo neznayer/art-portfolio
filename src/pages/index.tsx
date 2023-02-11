@@ -1,6 +1,6 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { type IArt } from "../types/art";
 import ViewLayout from "../components/ViewLayout";
 import LeftPanel from "../components/LeftPanel";
@@ -13,10 +13,7 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { artRouter } from "../server/api/routers/art";
 import { type Art } from "@prisma/client";
 
-const Home: NextPage<{ allArts: Art[]; allTags: string[] }> = ({
-  allArts,
-  allTags,
-}) => {
+const Home: NextPage<{ allArts: Art[] }> = ({ allArts }) => {
   const [selectedTag, setSelectedTag] = useState<string>("");
   const [shownArts, setShownArts] = useState<IArt[]>([]);
 
@@ -24,6 +21,10 @@ const Home: NextPage<{ allArts: Art[]; allTags: string[] }> = ({
     setSelectedTag("");
     setShownArts(allArts || []);
   }
+
+  const allTags = useMemo(() => {
+    return [...new Set(allArts.flatMap((art) => art.tags))];
+  }, [allArts]);
 
   useEffect(() => {
     if (selectedTag) {
@@ -71,7 +72,6 @@ export async function getStaticProps() {
   });
 
   const allArts = await ssg.highlightedArts.fetch();
-  const allTags = allArts.flatMap((art) => art.tags);
 
   const parsedArts = allArts.map((art) => ({
     ...art,
@@ -82,7 +82,6 @@ export async function getStaticProps() {
   return {
     props: {
       allArts: parsedArts,
-      allTags,
     },
     revalidate: 20,
   };

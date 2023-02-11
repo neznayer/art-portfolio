@@ -4,8 +4,9 @@ export default function ViewLayout({ children }: PropsWithChildren) {
   return (
     <main
       className="flex
+     min-h-screen 
      gap-4 
-     pl-5 
+     pl-5
      max-desktop:justify-start 
      max-tablet:flex-row
      max-smartphone:flex-col 
