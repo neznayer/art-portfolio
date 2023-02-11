@@ -1,4 +1,3 @@
-import { useRouter } from "next/router";
 import { api } from "../../utils/api";
 
 import GalleryItem from "../../components/Gallery/GalleryItem";
@@ -11,11 +10,7 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { artRouter } from "../../server/api/routers/art";
 import { createInnerTRPCContext } from "../../server/api/trpc";
 
-export default function ArtById() {
-  const router = useRouter();
-
-  const id = router.query.id as string;
-
+export default function ArtById({ id }: { id: string }) {
   const { data, isFetched } = api.art.getById.useQuery({ id });
 
   return (

@@ -48,7 +48,6 @@ export async function getStaticProps() {
       allArts,
       allTags,
     },
-    revalidate: 1,
   };
 }
 
