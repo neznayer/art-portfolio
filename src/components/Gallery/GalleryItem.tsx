@@ -76,6 +76,8 @@ export default function ArtCard({
         width={artProps.width}
         height={artProps.height}
         className={` h-full w-auto object-cover`}
+        placeholder="blur"
+        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
         sizes="(max-width: 640px) 100wv, 50wv"
       ></Image>
     </div>
