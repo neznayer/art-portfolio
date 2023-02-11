@@ -64,7 +64,7 @@ export async function getStaticPaths() {
     params: { id: art.id },
   }));
 
-  return { paths, fallback: false };
+  return { paths, fallback: true };
 }
 
 export async function getStaticProps({ params }: { params: { id: string } }) {
