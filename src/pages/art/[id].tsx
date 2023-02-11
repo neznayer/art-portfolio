@@ -86,5 +86,6 @@ export async function getStaticProps({ params }: { params: { id: string } }) {
         updatedAt: art?.updatedAt.valueOf(),
       },
     },
+    revalidate: 20,
   };
 }
