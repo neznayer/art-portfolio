@@ -25,8 +25,12 @@ export default function ArtById({ art }: { art: Art }) {
         <FaAngleLeft />
       </Link>
       <section className="flex w-full flex-col items-center justify-center">
-        <LargeViewLayout className=" bg-white" mode="large">
-          <GalleryItem mode="large_view" {...art} className="h-[60vh]" />
+        <LargeViewLayout className=" mt-8 bg-white" mode="large">
+          <GalleryItem
+            mode="large_view"
+            {...art}
+            className=" w-[50vw] max-smartphone:w-full"
+          />
 
           <dl>
             <dt>
@@ -39,7 +43,7 @@ export default function ArtById({ art }: { art: Art }) {
 
           <TagsField
             onTagClick={() => null}
-            mode="view"
+            mode="largeView"
             tags={art?.tags || []}
           />
         </LargeViewLayout>
