@@ -201,7 +201,7 @@ export default function AdminPage() {
 
   const signOutBtn = <Button onClick={() => signOut()}>SignOut</Button>;
   const signinBtn = (
-    <Button onClick={() => signIn("google")}>
+    <Button onClick={() => signIn("google", undefined, { prompt: "login" })}>
       <FaGoogle color="red" className="mr-1 inline-block text-lg" /> SignIn with
       Google
     </Button>
