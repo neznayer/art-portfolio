@@ -19,6 +19,7 @@ export const artRouter = createTRPCRouter({
       .then((res) => res.sort((a, b) => +a.createdAt - +b.createdAt));
     return data;
   }),
+
   highlightedArts: publicProcedure
     .input(z.object({ tag: z.string().optional() }).optional())
     .query(({ ctx, input }) => {
