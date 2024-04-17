@@ -201,7 +201,15 @@ export default function AdminPage() {
 
   const signOutBtn = <Button onClick={() => signOut()}>SignOut</Button>;
   const signinBtn = (
-    <Button onClick={() => signIn("google", undefined, { prompt: "login" })}>
+    <Button
+      onClick={() =>
+        signIn(
+          "google",
+          { redirect: true, callbackUrl: "/api/auth/callback/google" },
+          { prompt: "login" }
+        )
+      }
+    >
       <FaGoogle color="red" className="mr-1 inline-block text-lg" /> SignIn with
       Google
     </Button>
